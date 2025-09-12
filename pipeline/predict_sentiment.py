@@ -18,15 +18,34 @@ logger = logging.getLogger(__name__)
 
 def analyze_overall_effectiveness(df):
     """
-    Analyzes the entire dataframe to find the top and bottom 5 effective drugs
-    and logs the results. This provides a high-level market view.
+    Analyzes the entire dataframe to find the top/bottom effective drugs and
+    the overall sentiment breakdown. Returns the analysis as a dictionary.
     """
     logger.info("\n" + "="*50)
     logger.info("--- Overall Drug Effectiveness Analysis (All Drugs) ---")
     
+    analysis_output = {
+        "status": "Skipped",
+        "top_5_effective": None,
+        "bottom_5_effective": None,
+        "overall_sentiment_breakdown": {}
+    }
+
+    # --- Overall Sentiment Breakdown ---
+    if 'predicted_sentiment_str' in df.columns:
+        sentiment_counts = {
+            "positive": int(df['predicted_sentiment_str'].str.contains("positive", case=False, na=False).sum()),
+            "neutral": int(df['predicted_sentiment_str'].str.contains("neutral", case=False, na=False).sum()),
+            "negative": int(df['predicted_sentiment_str'].str.contains("negative", case=False, na=False).sum())
+        }
+        analysis_output["overall_sentiment_breakdown"] = sentiment_counts
+        logger.info(f"Overall Sentiment Breakdown: Positive={sentiment_counts['positive']}, Neutral={sentiment_counts['neutral']}, Negative={sentiment_counts['negative']}")
+    
+    # --- Top/Bottom Drug Effectiveness ---
     if 'effectiveness' not in df.columns or 'urlDrugName' not in df.columns:
-        logger.warning("Overall effectiveness analysis skipped: 'effectiveness' or 'urlDrugName' column not found.")
-        return
+        logger.warning("Top/Bottom drug effectiveness analysis skipped: 'effectiveness' or 'urlDrugName' column not found.")
+        analysis_output['status'] = "Success (Effectiveness analysis skipped)"
+        return analysis_output
 
     effectiveness_map = {
         'Highly Effective': 5, 'Considerably Effective': 4, 
@@ -34,24 +53,30 @@ def analyze_overall_effectiveness(df):
     }
     df['effectiveness_score'] = df['effectiveness'].map(effectiveness_map).fillna(0)
 
-    # Only consider drugs with a minimum number of reviews for reliability
     drug_review_counts = df['urlDrugName'].value_counts()
     min_reviews = 3
     reliable_drugs = drug_review_counts[drug_review_counts >= min_reviews].index
     
     if len(reliable_drugs) < 10:
         logger.warning(f"Not enough drugs with sufficient reviews (min {min_reviews}) to generate top/bottom 5 lists.")
-        return
+        analysis_output["status"] = f"Success (Not enough drugs for top/bottom list)"
+        return analysis_output
 
     filtered_df = df[df['urlDrugName'].isin(reliable_drugs)]
     avg_effectiveness = filtered_df.groupby('urlDrugName')['effectiveness_score'].mean().sort_values(ascending=False)
     
     top_5_drugs = avg_effectiveness.head(5)
-    logger.info(f"\nTop 5 Most Effective Drugs (min {min_reviews} reviews):\n{top_5_drugs.to_string()}")
-    
     bottom_5_drugs = avg_effectiveness.tail(5)
+    
+    logger.info(f"\nTop 5 Most Effective Drugs (min {min_reviews} reviews):\n{top_5_drugs.to_string()}")
     logger.info(f"\nBottom 5 Least Effective Drugs (min {min_reviews} reviews):\n{bottom_5_drugs.to_string()}")
+    
+    analysis_output["status"] = "Success"
+    analysis_output["top_5_effective"] = top_5_drugs.to_dict()
+    analysis_output["bottom_5_effective"] = bottom_5_drugs.to_dict()
+    
     logger.info("="*50 + "\n")
+    return analysis_output
 
 
 def analyze_drug_predictions(df, drug_name):
@@ -64,8 +89,8 @@ def analyze_drug_predictions(df, drug_name):
         "drug_name": drug_name,
         "status": "Analysis successful",
         "reviews_found": 0,
-        "average_rating": "Not available",
-        "overall_sentiment": "Not determined",
+        "average_rating": "N/A",
+        "overall_sentiment": "N/A",
         "sentiment_breakdown": {},
         "top_effective_conditions": {},
         "least_effective_conditions": {},
@@ -73,7 +98,7 @@ def analyze_drug_predictions(df, drug_name):
     }
 
     drug_name_cleaned = drug_name.strip().lower()
-    drug_df = df[df['urlDrugName'].str.strip().str.lower() == drug_name_cleaned]
+    drug_df = df[df['urlDrugName'].str.strip().str.lower() == drug_name_cleaned].copy()
     
     analysis_results["reviews_found"] = len(drug_df)
     logger.info(f"Found {len(drug_df)} reviews for '{drug_name}'.")
@@ -83,27 +108,37 @@ def analyze_drug_predictions(df, drug_name):
         logger.warning(analysis_results["status"])
         return analysis_results
         
-    # --- Overall Sentiment Calculation ---
+    # --- Composite Sentiment Calculation ---
     sentiment_score = -1
     if 'rating_sentiment' in drug_df.columns and not drug_df['rating_sentiment'].empty:
         sentiment_score = drug_df['rating_sentiment'].mean()
-        if 'predicted_sentiment' in drug_df.columns and not drug_df['predicted_sentiment'].empty:
-            sentiment_score = (sentiment_score + drug_df['predicted_sentiment'].mean()) / 2
+        # Average with model prediction if available and numeric
+        if 'predicted_sentiment' in drug_df.columns and pd.api.types.is_numeric_dtype(drug_df['predicted_sentiment']):
+            model_sentiment_mean = drug_df['predicted_sentiment'].mean(skipna=True)
+            if pd.notna(model_sentiment_mean):
+                 sentiment_score = (sentiment_score + model_sentiment_mean) / 2
 
-    if sentiment_score > 1.5: overall_sentiment = "Positive"
-    elif sentiment_score > 0.7: overall_sentiment = "Neutral"
-    elif sentiment_score >= 0: overall_sentiment = "Negative"
-    else: overall_sentiment = "Not Determined"
+    if sentiment_score > 0.7:
+        overall_sentiment = "Positive"
+    elif 0.4 <= sentiment_score <= 0.7:
+        overall_sentiment = "Neutral"
+    elif sentiment_score >= 0:
+        overall_sentiment = "Negative"
+    else:
+        overall_sentiment = "Not Determined"
 
     analysis_results["overall_sentiment"] = overall_sentiment
-    logger.info(f"Calculated composite sentiment score: {sentiment_score:.2f}")
-    logger.info(f"Overall determined sentiment: {overall_sentiment}")
-
+    logger.info(f"Calculated composite sentiment score: {sentiment_score:.2f} -> {overall_sentiment}")
+    
     # --- Other Analyses ---
-    if 'predicted_sentiment' in drug_df.columns:
-        sentiment_map = {2: 'Positive', 1: 'Neutral', 0: 'Negative'}
-        sentiment_counts = drug_df['predicted_sentiment'].map(sentiment_map).value_counts()
-        analysis_results["sentiment_breakdown"] = sentiment_counts.to_dict()
+    if 'predicted_sentiment_str' in drug_df.columns:
+        sentiment_counts = {
+            "positive": int(drug_df['predicted_sentiment_str'].str.contains("positive", case=False, na=False).sum()),
+            "neutral": int(drug_df['predicted_sentiment_str'].str.contains("neutral", case=False, na=False).sum()),
+            "negative": int(drug_df['predicted_sentiment_str'].str.contains("negative", case=False, na=False).sum())
+        }
+        analysis_results["sentiment_breakdown"] = sentiment_counts
+        logger.info(f"Drug-specific Sentiment Breakdown: Positive={sentiment_counts['positive']}, Neutral={sentiment_counts['neutral']}, Negative={sentiment_counts['negative']}")
 
     if 'rating' in drug_df.columns and pd.api.types.is_numeric_dtype(drug_df['rating']):
         avg_rating = drug_df['rating'].mean()
@@ -152,8 +187,8 @@ def identify_adverse_events(df):
 # --- Main Entry Point for this Module ---
 
 def run_inference(inference_df, drug_name=None):
-    logger.info("--- Starting Sentiment Prediction Step ---")
     model_path = "./models/sentiment_model.pkl"
+    logger.info(f"--- Starting Sentiment Prediction (Model: {model_path}) ---")
     
     if not os.path.exists(model_path):
         logger.error(f"Model file not found at '{model_path}'.")
@@ -161,7 +196,6 @@ def run_inference(inference_df, drug_name=None):
 
     try:
         pipeline = joblib.load(model_path)
-        logger.info(f"Sentiment model loaded successfully from '{model_path}'.")
     except Exception as e:
         logger.error(f"Error loading model: {e}", exc_info=True)
         return {"status": "error", "message": f"Error loading model: {e}"}
@@ -177,25 +211,30 @@ def run_inference(inference_df, drug_name=None):
     logger.info("Predicting sentiment...")
     string_predictions = pipeline.predict(df_copy['full_review'])
     
+    df_copy['predicted_sentiment_str'] = pd.Series(string_predictions).str.lower()
+    
     sentiment_map_to_numeric = {'positive': 2, 'neutral': 1, 'negative': 0}
-    df_copy['predicted_sentiment'] = pd.Series(string_predictions).map(sentiment_map_to_numeric)
+    
+    df_copy['predicted_sentiment'] = pd.to_numeric(
+        df_copy['predicted_sentiment_str'].map(sentiment_map_to_numeric), 
+        errors='coerce'
+    )
     
     logger.info("Sentiment prediction complete.")
     
     df_with_analysis = identify_adverse_events(df_copy)
     
-    # --- New Step: Run overall analysis on the full dataset ---
-    analyze_overall_effectiveness(df_with_analysis)
-    
-    final_json_output = {
-        "status": "success",
-        "data": df_with_analysis.to_dict(orient='records'),
-        "analysis_summary": {}
+    # --- Consolidate Analysis Results ---
+    analysis_summary = {
+        "overall_effectiveness_analysis": analyze_overall_effectiveness(df_with_analysis)
     }
     
     if drug_name:
-        analysis_summary = analyze_drug_predictions(df_with_analysis, drug_name)
-        final_json_output["analysis_summary"] = analysis_summary
+        analysis_summary["drug_specific_analysis"] = analyze_drug_predictions(df_with_analysis, drug_name)
     
-    return final_json_output
+    return {
+        "status": "Success",
+        "data": df_with_analysis.to_dict(orient='records'),
+        "analysis_summary": analysis_summary
+    }
 
