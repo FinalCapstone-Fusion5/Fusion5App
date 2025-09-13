@@ -6,3 +6,6 @@ joblib
 streamlit
 catboost
 torch
+opencv-python-headless
+tensorflow
+matplotlib
