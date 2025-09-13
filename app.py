@@ -83,8 +83,8 @@ if page == "🏠 Home":
     # Add overview content here
     
 elif page == "😊 Sentiment Analysis":
-    # Your current sentiment analysis UI goes here
-
+    st.title("😊 Sentiment Analysis")
+    st.write("Sentiment analysis functionality coming soon...")
     
 # --- UI Components ---
 with st.sidebar:
