@@ -13,6 +13,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from pipeline import process_feedback
 from pipeline import predict_sentiment
 from pipeline import readmission_data_pipeline
+from pipeline import predict_readmission_pipeline
 from pipeline import los_data_pipeline
 
 # ASTHETICS: Background Color and Such
@@ -271,14 +272,14 @@ def setup_logging():
     )
     return log_filepath
 
-# --- Core Pipeline Logic ---
+# --- Sentiment Analysis Pipeline Logic ---
 @st.cache_data
 def execute_pipeline(input_df, drug_name):
     """
     Orchestrates the data processing and sentiment analysis pipeline.
     """
     log_file = setup_logging()
-    logging.info(f"Pipeline run initiated for drug: '{drug_name}'. Log file: {log_file}")
+    logging.info(f"Pipeline run initiated for read: '{drug_name}'. Log file: {log_file}")
 
     # Step 1: Process the raw data
     logging.info("Step 1: Preprocessing data...")
@@ -290,6 +291,31 @@ def execute_pipeline(input_df, drug_name):
     
     logging.info("Pipeline execution complete.")
     return prediction_result, log_file
+
+# ------ Readmission Prediction Pipeline Logic -----
+@st.cache_data
+def execute_readmission_pipeline(input_file):
+    # Process the data
+    #input_file = "../healthcare/patient_encounters_2023.csv"
+    output_file = "processed_readmission_data.csv"
+    pipeline_file = "readmission_data_pipeline.pkl"
+    
+    """
+    Orchestrates the data processing and sentiment analysis pipeline.
+    """
+    log_file = setup_logging()
+    logging.info(f"Pipeline run initiated for readmission prediction")#drug: '{drug_name}'. Log file: {log_file}")
+
+    """# Step 1: Process the raw data
+    logging.info("Step 1: Preprocessing data...")
+    scaled_data, processed_data = readmission_data_pipeline.process_file(input_file, output_file, pipeline_file)"""
+    
+    # Step 2: Run sentiment prediction and analysis
+    logging.info("Step 2: Predicting readmission...")
+    results = predict_readmission_pipeline.predict_batch(input_file, output_file, 0.3)
+    
+    logging.info("Pipeline execution complete.")
+    return results, log_file
 
 # --- Streamlit Page Configuration & UI ---
 st.set_page_config(page_title="Medicine Feedback Analysis", page_icon="💊", layout="wide")
@@ -702,7 +728,7 @@ elif page == "🏥 Readmission Prediction":
         if st.button("🚀 Run Readmission Analysis", use_container_width=True, type="primary"):
             with st.spinner("Analyzing readmission risk..."):
                 try:
-                    # Read the uploaded file
+                    """# Read the uploaded file
                     input_df = pd.read_csv(uploaded_file)
                     
                     # Create pipeline instance and process
@@ -712,14 +738,16 @@ elif page == "🏥 Readmission Prediction":
                     # Process the data
                     processed_data = pipeline.preprocess_data(input_df)
                     pipeline.fit_scaler(processed_data)
-                    scaled_data = pipeline.transform_data(processed_data)
+                    scaled_data = pipeline.transform_data(processed_data)"""
                     
+                    results, log_file = execute_readmission_pipeline(uploaded_file)
                     st.success("✅ Readmission analysis complete!")
                     
                     # Display results
                     st.subheader("📊 Readmission Analysis Results")
-                    st.write(f"Processed {len(input_df)} patient records")
-                    st.dataframe(processed_data.head())
+                    #st.write(f"Processed {len(input_df)} patient records")
+                    st.write(f"Readmission Resultset -")
+                    st.dataframe(results.head())
                     
                 except Exception as e:
                     st.error(f"Error during analysis: {e}")
