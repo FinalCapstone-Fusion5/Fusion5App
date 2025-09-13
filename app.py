@@ -280,7 +280,15 @@ elif page == "🧪 Retinal Image Test":
     st.markdown("Upload a retinal image to classify diabetic retinopathy severity using our deep learning model.")
     
     # Model info
-    st.info("**Model:** Diabetic Retinopathy Classification (5 classes: No DR, Mild, Moderate, Severe, Proliferative)")
+    st.info("**Model:** 🏷️ Model Overview
+
+The model is trained to classify retinal images into five severity levels based on the International Clinical Diabetic Retinopathy (ICDR) scale:
+
+0 - No DR – Healthy retina with no signs of diabetic damage.
+1 - Mild – Presence of microaneurysms only.
+2 - Moderate – More than just microaneurysms, but less than severe non-proliferative DR.
+3 - Severe – Extensive microvascular damage with hemorrhages and venous beading.
+4 - Proliferative DR – Growth of new blood vessels (neovascularization) that can cause vision-threatening complications.")
     
     # Image upload
     uploaded_image = st.file_uploader("Upload Retinal Image", type=['jpg', 'jpeg', 'png'])
