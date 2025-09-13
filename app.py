@@ -80,10 +80,43 @@ if page == "🏠 Home":
     st.title("💊 Medicine Feedback Analysis Pipeline")
     st.markdown("Choose a model from the sidebar to analyze patient feedback data.")
     # Add overview content here
+#Readmissions    
+elif page == "🏥 Readmission Prediction":
+    st.title("🏥 Readmission Prediction")
+    st.markdown("Upload patient encounter data to predict readmission risk.")
     
-elif page == "😊 Sentiment Analysis":
-    st.title("😊 Sentiment Analysis")
-    st.write("Sentiment analysis functionality coming soon...")
+    # File upload for patient encounters
+    uploaded_file = st.file_uploader("Upload Patient Encounters CSV", type=['csv'])
+    
+    if uploaded_file is not None:
+        st.info(f"Ready to analyze patient encounters from `{uploaded_file.name}`.")
+        
+        if st.button("🚀 Run Readmission Analysis", use_container_width=True, type="primary"):
+            with st.spinner("Analyzing readmission risk..."):
+                try:
+                    # Read the uploaded file
+                    input_df = pd.read_csv(uploaded_file)
+                    
+                    # Create pipeline instance and process
+                    from readmission_data_pipeline import ReadmissionDataPipeline
+                    pipeline = ReadmissionDataPipeline()
+                    
+                    # Process the data
+                    processed_data = pipeline.preprocess_data(input_df)
+                    pipeline.fit_scaler(processed_data)
+                    scaled_data = pipeline.transform_data(processed_data)
+                    
+                    st.success("✅ Readmission analysis complete!")
+                    
+                    # Display results (add your prediction logic here)
+                    st.subheader("📊 Readmission Analysis Results")
+                    st.write(f"Processed {len(input_df)} patient records")
+                    st.dataframe(processed_data.head())
+                    
+                except Exception as e:
+                    st.error(f"Error during analysis: {e}")
+    else:
+        st.warning("Please upload a patient encounters CSV file to begin.")
     
 # --- UI Components ---
 with st.sidebar:
