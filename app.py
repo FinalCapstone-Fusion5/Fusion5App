@@ -72,13 +72,58 @@ with st.sidebar:
     page = st.radio(
         "Choose Analysis Type:",
         ["🏠 Home", "😊 Sentiment Analysis", "🏥 Readmission Prediction", 
-         "⏱️ Length of Stay", "🧠 CNN Model", "🧪 Test New Data"]
+         "⏱️ Length of Stay", "🧠 Retinal CNN Model", "🧪 Retinal Image Test"]
     )
 
 # --- Main Content Based on Selection ---
 if page == "🏠 Home":
-    st.title("💊 Medicine Feedback Analysis Pipeline")
-    st.markdown("Choose a model from the sidebar to analyze patient feedback data.")
+    st.title("💊 Fusion 5 - AI Healthcare Solutions")
+    
+    # Team Introduction
+    st.markdown("---")
+    st.header("🚀 Our Mission")
+    st.markdown("""
+    **Fusion 5** leverages cutting-edge AI and Machine Learning technologies to revolutionize healthcare delivery. 
+    Our comprehensive suite of predictive models empowers medical professionals to make data-driven decisions, 
+    ultimately improving patient outcomes and enhancing the quality of care.
+    
+    Through intelligent analysis of patient data, medication feedback, and clinical indicators, we provide 
+    healthcare providers with the insights they need to deliver personalized, efficient, and effective treatment.
+    """)
+    
+    # Model Overview
+    st.header("🔬 Our AI Models")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("**😊 Sentiment Analysis**")
+        st.markdown("Analyze patient feedback and medication reviews")
+        
+        st.markdown("**🏥 Readmission Prediction**") 
+        st.markdown("Predict patient readmission risk factors")
+    
+    with col2:
+        st.markdown("**⏱️ Length of Stay Prediction**")
+        st.markdown("Forecast hospital stay duration")
+        
+        st.markdown("**🧠 CNN Image Analysis**")
+        st.markdown("Advanced medical image processing")
+    
+    # Getting Started
+    st.header("📋 Getting Started")
+    st.markdown("Choose a model from the sidebar to begin analyzing your healthcare data and improving patient care.")
+    
+    # Thank You Note
+    st.markdown("---")
+    st.header("🙏 Acknowledgments")
+    st.markdown("""
+    **Team Fusion 5** - Christopher, Greggy, Sirisha, Srividya, and Sean - would like to extend our heartfelt 
+    gratitude to **Professor Abhishek** for creating an encouraging and supportive learning environment. 
+    
+    Thank you for believing in our dreams, listening to our ideas, and guiding us through this incredible 
+    journey of discovery in AI and healthcare innovation. Your mentorship has been invaluable in bringing 
+    this vision to life.
+    """)
     # Add overview content here
 #Readmissions    
 elif page == "🏥 Readmission Prediction":
