@@ -117,6 +117,57 @@ elif page == "🏥 Readmission Prediction":
                     st.error(f"Error during analysis: {e}")
     else:
         st.warning("Please upload a patient encounters CSV file to begin.")
+
+#LOS
+elif page == "⏱️ Length of Stay":
+    st.title("⏱️ Length of Stay Prediction")
+    st.markdown("Upload patient encounter data to predict hospital length of stay.")
+    
+    # File upload for patient encounters
+    uploaded_file = st.file_uploader("Upload Patient Encounters CSV", type=['csv'], key="los_upload")
+    
+    if uploaded_file is not None:
+        st.info(f"Ready to analyze length of stay from `{uploaded_file.name}`.")
+        
+        if st.button("🚀 Run Length of Stay Analysis", use_container_width=True, type="primary"):
+            with st.spinner("Analyzing length of stay..."):
+                try:
+                    # Read the uploaded file
+                    input_df = pd.read_csv(uploaded_file)
+                    
+                    # Create pipeline instance and process
+                    from los_data_pipeline import LOSDataPipeline
+                    pipeline = LOSDataPipeline()
+                    
+                    # Process the data
+                    processed_data = pipeline.preprocess_data(input_df)
+                    pipeline.fit_scaler(processed_data)
+                    scaled_data = pipeline.transform_data(processed_data)
+                    
+                    st.success("✅ Length of stay analysis complete!")
+                    
+                    # Display results
+                    st.subheader("📊 Length of Stay Analysis Results")
+                    
+                    col1, col2, col3 = st.columns(3)
+                    col1.metric("Patients Processed", len(input_df))
+                    col2.metric("Features Extracted", len(pipeline.feature_columns))
+                    col3.metric("Average Age", f"{processed_data['age'].mean():.1f} years")
+                    
+                    # Show feature summary
+                    with st.expander("📋 Feature Summary"):
+                        st.write("**Features used for prediction:**")
+                        st.write(pipeline.feature_columns)
+                    
+                    # Show processed data preview
+                    st.subheader("📄 Processed Data Preview")
+                    st.dataframe(processed_data.head(10))
+                    
+                except Exception as e:
+                    st.error(f"Error during analysis: {e}")
+                    st.exception(e)
+    else:
+        st.warning("Please upload a patient encounters CSV file to begin.")
     
 # --- UI Components ---
 with st.sidebar:
