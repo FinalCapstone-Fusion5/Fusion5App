@@ -728,18 +728,6 @@ elif page == "🏥 Readmission Prediction":
         if st.button("🚀 Run Readmission Analysis", use_container_width=True, type="primary"):
             with st.spinner("Analyzing readmission risk..."):
                 try:
-                    """# Read the uploaded file
-                    input_df = pd.read_csv(uploaded_file)
-                    
-                    # Create pipeline instance and process
-                    from readmission_data_pipeline import ReadmissionDataPipeline
-                    pipeline = ReadmissionDataPipeline()
-                    
-                    # Process the data
-                    processed_data = pipeline.preprocess_data(input_df)
-                    pipeline.fit_scaler(processed_data)
-                    scaled_data = pipeline.transform_data(processed_data)"""
-
                     model_path='models/readmission_model.joblib'
                     pipeline_path='models/readmission_data_pipeline.pkl'
                     output_file = "readmission_prediction_data.csv"
