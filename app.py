@@ -294,7 +294,7 @@ def execute_pipeline(input_df, drug_name):
 
 # ------ Readmission Prediction Pipeline Logic -----
 @st.cache_data
-def execute_readmission_pipeline(model_pipeline, input_file):
+def execute_readmission_pipeline(_model_pipeline, input_file):
     # Process the data
     #input_file = "../healthcare/patient_encounters_2023.csv"
     output_file = "processed_readmission_data.csv"
