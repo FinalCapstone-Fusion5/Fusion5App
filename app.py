@@ -12,6 +12,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from pipeline import process_feedback
 from pipeline import predict_sentiment
+from pipeline import predict_sentiment_pipeline
+from pipeline import predict_readmission_pipeline  
+from pipeline import predict_lengthofstay_pipeline
 
 # --- Logging Configuration ---
 def setup_logging():
@@ -53,11 +56,36 @@ def execute_pipeline(input_df, drug_name):
     logging.info("Pipeline execution complete.")
     return prediction_result, log_file
 
+    # Step 3: Run readmission prediction
+    logging.info("Step 3: Predicting readmission...")
+    readmission_result = predict_readmission_pipeline.run_inference(processed_df, drug_name=drug_name)
+
+    # Step 4: Run length of stay prediction  
+    logging.info("Step 4: Predicting length of stay...")
+    lengthofstay_result = predict_lengthofstay_pipeline.run_inference(processed_df, drug_name=drug_name)
+
 # --- Streamlit Page Configuration & UI ---
 st.set_page_config(page_title="Medicine Feedback Analysis", page_icon="💊", layout="wide")
-st.title("💊 Medicine Feedback Analysis Pipeline")
-st.markdown("Upload a patient feedback CSV file and select a drug to analyze its sentiment and effectiveness.")
 
+# --- Sidebar Navigation ---
+with st.sidebar:
+    st.title("🏥 ML Models")
+    page = st.radio(
+        "Choose Analysis Type:",
+        ["🏠 Home", "😊 Sentiment Analysis", "🏥 Readmission Prediction", 
+         "⏱️ Length of Stay", "🧠 CNN Model", "🧪 Test New Data"]
+    )
+
+# --- Main Content Based on Selection ---
+if page == "🏠 Home":
+    st.title("💊 Medicine Feedback Analysis Pipeline")
+    st.markdown("Choose a model from the sidebar to analyze patient feedback data.")
+    # Add overview content here
+    
+elif page == "😊 Sentiment Analysis":
+    # Your current sentiment analysis UI goes here
+
+    
 # --- UI Components ---
 with st.sidebar:
     st.header("⚙️ Analysis Configuration")
