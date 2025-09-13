@@ -64,7 +64,7 @@ with st.sidebar:
     page = st.radio(
         "Choose Analysis Type:",
         ["🏠 Home", "😊 Sentiment Analysis", "🏥 Readmission Prediction", 
-         "⏱️ Length of Stay", "🧠 CNN Model", "🧪 Retinal Image Test", 
+         "⏱️ Length of Stay", "🧪 Retinal Image Test", 
          "📋 Patient Feedback", "💊 Medicine Feedback", "🏥 Clinical Codes"]
     )
 
@@ -275,8 +275,8 @@ elif page == "⏱️ Length of Stay":
     else:
         st.warning("Please upload a patient encounters CSV file to begin.")
 
-elif page == "🧠 Retinal Image Test":
-    st.title("🧠 Retinal Image Test")
+elif page == "🧪 Retinal Image Test":
+    st.title("🧪 Retinal Image Test")
     st.markdown("Upload a retinal image to classify diabetic retinopathy severity using our deep learning model.")
     
     # Model info
