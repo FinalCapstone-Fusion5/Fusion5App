@@ -213,7 +213,91 @@ elif page == "⏱️ Length of Stay":
                     st.exception(e)
     else:
         st.warning("Please upload a patient encounters CSV file to begin.")
+
+#CNN
+
+elif page == "🧠 CNN Model":
+    st.title("🧠 CNN Eye Image Classification")
+    st.markdown("Upload a retinal image to classify diabetic retinopathy severity using our deep learning model.")
     
+    # Model info
+    st.info("**Model:** Diabetic Retinopathy Classification (5 classes: No DR, Mild, Moderate, Severe, Proliferative)")
+    
+    # Image upload
+    uploaded_image = st.file_uploader("Upload Retinal Image", type=['jpg', 'jpeg', 'png'])
+    
+    if uploaded_image is not None:
+        # Display the uploaded image
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.image(uploaded_image, caption="Uploaded Retinal Image", use_column_width=True)
+        
+        with col2:
+            if st.button("🔍 Classify Image", use_container_width=True, type="primary"):
+                with st.spinner("Analyzing retinal image..."):
+                    try:
+                        # Save uploaded file temporarily
+                        import tempfile
+                        import os
+                        
+                        with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp_file:
+                            tmp_file.write(uploaded_image.getvalue())
+                            temp_path = tmp_file.name
+                        
+                        # Initialize CNN tester
+                        from cnn_model_test import RetinalCNNTester
+                        tester = RetinalCNNTester(model_path="basic_modelv4_final.h5")
+                        
+                        # Make prediction
+                        result = tester.predict_single_image(temp_path)
+                        
+                        # Clean up temp file
+                        os.unlink(temp_path)
+                        
+                        if result:
+                            st.success("✅ Image classification complete!")
+                            
+                            # Display results
+                            st.subheader("📊 Classification Results")
+                            
+                            # Main prediction
+                            col1, col2, col3 = st.columns(3)
+                            col1.metric("Prediction", result['predicted_label'])
+                            col2.metric("Confidence", f"{result['confidence']:.1%}")
+                            col3.metric("Risk Level", "⚠️ High" if result['predicted_class'] >= 3 else "✅ Low-Moderate")
+                            
+                            # Probability breakdown
+                            st.subheader("🎯 Probability Breakdown")
+                            prob_df = pd.DataFrame({
+                                'Severity Level': ["No DR", "Mild DR", "Moderate DR", "Severe DR", "Proliferative DR"],
+                                'Probability': [f"{p:.1%}" for p in result['all_probabilities']],
+                                'Score': result['all_probabilities']
+                            })
+                            
+                            # Highlight predicted class
+                            def highlight_max(s):
+                                is_max = s == s.max()
+                                return ['background-color: lightgreen' if v else '' for v in is_max]
+                            
+                            st.dataframe(prob_df.style.apply(highlight_max, subset=['Score']))
+                            
+                            # Medical disclaimer
+                            st.warning("⚠️ **Medical Disclaimer:** This is an AI model for educational/research purposes only. Always consult qualified medical professionals for diagnosis and treatment.")
+                        
+                        else:
+                            st.error("Failed to process image. Please try a different image.")
+                            
+                    except Exception as e:
+                        st.error(f"Error during classification: {e}")
+                        st.exception(e)
+    else:
+        st.warning("Please upload a retinal image to begin classification.")
+        
+        # Sample images info
+        st.markdown("---")
+        st.markdown("**Expected Image Format:** JPG, JPEG, or PNG retinal/fundus photographs")
+        st.markdown("**Model Input:** 512x512 pixel images (automatically resized)")
 # --- UI Components ---
 with st.sidebar:
     st.header("⚙️ Analysis Configuration")
