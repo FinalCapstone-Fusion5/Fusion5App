@@ -17,8 +17,6 @@ from pipeline import los_data_pipeline
 
 # ASTHETICS: Background Color and Such
 
-# Add this CSS styling function right after your imports in app.py
-
 def apply_healthcare_theme():
     """Apply professional healthcare styling"""
     st.markdown("""
@@ -187,11 +185,17 @@ def apply_healthcare_theme():
         border: 2px solid #e1e8ed;
         border-radius: 8px;
         background-color: #ffffff;
+        color: #1f4e79 !important;
     }
     
     .stTextArea textarea:focus {
         border-color: #4a90c2;
         box-shadow: 0 0 0 2px rgba(74, 144, 194, 0.2);
+    }
+    
+    /* Text area placeholder */
+    .stTextArea textarea::placeholder {
+        color: #8a8a8a !important;
     }
     
     /* Text inputs */
@@ -242,8 +246,6 @@ def apply_healthcare_theme():
     </style>
     """, unsafe_allow_html=True)
 
-# Add this call right after st.set_page_config in your app.py
-apply_healthcare_theme()
 
 # Add this call right after st.set_page_config in your app.py
 apply_healthcare_theme()
