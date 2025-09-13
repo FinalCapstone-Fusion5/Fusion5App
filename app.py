@@ -15,15 +15,23 @@ from pipeline import predict_sentiment
 from pipeline import readmission_data_pipeline
 from pipeline import los_data_pipeline
 
+# ASTHETICS: Background Color and Such
+
 # Add this CSS styling function right after your imports in app.py
 
 def apply_healthcare_theme():
     """Apply professional healthcare styling"""
     st.markdown("""
     <style>
-    /* Main app background */
+    /* Main app background and text */
     .stApp {
         background-color: #f8fafe;
+        color: #1f4e79;
+    }
+    
+    /* Ensure all text is readable */
+    .stApp p, .stApp span, .stApp div {
+        color: #1f4e79 !important;
     }
     
     /* Sidebar styling */
@@ -233,6 +241,9 @@ def apply_healthcare_theme():
     
     </style>
     """, unsafe_allow_html=True)
+
+# Add this call right after st.set_page_config in your app.py
+apply_healthcare_theme()
 
 # Add this call right after st.set_page_config in your app.py
 apply_healthcare_theme()
