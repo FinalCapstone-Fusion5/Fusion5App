@@ -72,7 +72,7 @@ with st.sidebar:
     page = st.radio(
         "Choose Analysis Type:",
         ["🏠 Home", "😊 Sentiment Analysis", "🏥 Readmission Prediction", 
-         "⏱️ Length of Stay", "🧠 Retinal CNN Model", "🧪 Retinal Image Test", "Link to Patient Feedback", "Link to Medicine Feedback", Link to Clinical Codes"]
+         "⏱️ Length of Stay", "🧠 Retinal CNN Model", "🧪 Retinal Image Test", "Link to Patient Feedback", "Link to Medicine Feedback", "Link to CLinical Codes"]
     )
 
 # --- Main Content Based on Selection ---
