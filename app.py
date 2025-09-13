@@ -203,6 +203,7 @@ def apply_healthcare_theme():
         border: 2px solid #e1e8ed;
         border-radius: 8px;
         background-color: #ffffff;
+        color: #8a8a8a !important;
     }
     
     .stTextInput input:focus {
