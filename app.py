@@ -12,9 +12,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from pipeline import process_feedback
 from pipeline import predict_sentiment
-predict_sentiment_pipeline
-predict_readmission_pipeline  
-predict_lengthofstay_pipeline
+from pipeline import readmission_data_pipeline
+from pipeline import los_data_pipeline
 
 # --- Logging Configuration ---
 def setup_logging():
