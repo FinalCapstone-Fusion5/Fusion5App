@@ -742,10 +742,12 @@ elif page == "🏥 Readmission Prediction":
 
                     model_path='models/readmission_model.joblib'
                     pipeline_path='models/readmission_data_pipeline.pkl'
+                    output_file = "readmission_prediction_data.csv"
                     from predict_readmission_pipeline import ImprovedBatchReadmissionPredictor
                     predictor = ImprovedBatchReadmissionPredictor()
                     
-                    results, log_file = execute_readmission_pipeline(predictor, uploaded_file)
+                    #results, log_file = execute_readmission_pipeline(predictor, uploaded_file)
+                    results, log_filr = predictor.predict_batch(uploaded_file, output_file, 0.3)
                     st.success("✅ Readmission analysis complete!")
                     
                     # Display results
