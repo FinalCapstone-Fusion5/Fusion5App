@@ -13,7 +13,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from pipeline import process_feedback
 from pipeline import predict_sentiment
 from pipeline import readmission_data_pipeline
-from pipeline import predict_readmission_pipeline
+#from pipeline import predict_readmission_pipeline
 from pipeline import los_data_pipeline
 
 # ASTHETICS: Background Color and Such
