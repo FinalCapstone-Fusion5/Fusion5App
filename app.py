@@ -742,7 +742,7 @@ elif page == "🏥 Readmission Prediction":
 
                     model_path='models/readmission_model.joblib'
                     pipeline_path='models/readmission_data_pipeline.pkl'
-                    from predict_readmission_pipeline import ReadmissionDataPipeline
+                    from predict_readmission_pipeline import ImprovedBatchReadmissionPredictor
                     predictor = ImprovedBatchReadmissionPredictor(model_path, pipeline_path)
                     
                     results, log_file = execute_readmission_pipeline(predictor, uploaded_file)
