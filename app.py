@@ -280,7 +280,7 @@ elif page == "🧪 Retinal Image Test":
     st.markdown("Upload a retinal image to classify diabetic retinopathy severity using our deep learning model.")
     
     # Model info
-    st.info("**Model:** 🏷️ Model Overview)
+    st.info("**Model:** 🏷️ Model Overview")
 
 The model is trained to classify retinal images into five severity levels based on the International Clinical Diabetic Retinopathy (ICDR) scale:
 
