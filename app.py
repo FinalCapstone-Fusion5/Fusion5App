@@ -280,15 +280,16 @@ elif page == "🧪 Retinal Image Test":
     st.markdown("Upload a retinal image to classify diabetic retinopathy severity using our deep learning model.")
     
     # Model info
-    st.info("**Model:** 🏷️ Model Overview")
-
-The model is trained to classify retinal images into five severity levels based on the International Clinical Diabetic Retinopathy (ICDR) scale:
-
-0 - No DR – Healthy retina with no signs of diabetic damage.
-1 - Mild – Presence of microaneurysms only.
-2 - Moderate – More than just microaneurysms, but less than severe non-proliferative DR.
-3 - Severe – Extensive microvascular damage with hemorrhages and venous beading.
-4 - Proliferative DR – Growth of new blood vessels (neovascularization) that can cause vision-threatening complications.")
+    with st.expander("📋 Model Overview"):
+        st.markdown("""
+        **Classification Scale:** International Clinical Diabetic Retinopathy (ICDR)
+        
+        - **0 - No DR:** Healthy retina with no signs of diabetic damage
+        - **1 - Mild:** Presence of microaneurysms only
+        - **2 - Moderate:** More than microaneurysms, but less than severe non-proliferative DR
+        - **3 - Severe:** Extensive microvascular damage with hemorrhages and venous beading
+        - **4 - Proliferative DR:** Growth of new blood vessels (neovascularization) that can cause vision-threatening complications
+        """)
     
     # Image upload
     uploaded_image = st.file_uploader("Upload Retinal Image", type=['jpg', 'jpeg', 'png'])
@@ -361,10 +362,15 @@ The model is trained to classify retinal images into five severity levels based 
     else:
         st.warning("Please upload a retinal image to begin classification.")
         
-        # Sample images info
-        st.markdown("---")
-        st.markdown("**Expected Image Format:** JPG, JPEG, or PNG retinal/fundus photographs")
-        st.markdown("**Model Input:** 512x512 pixel images (automatically resized)")
+        # Technical specifications
+        with st.expander("📋 Technical Details"):
+            st.markdown("""
+            **Expected Image Format:** JPG, JPEG, or PNG retinal/fundus photographs
+            
+            **Model Input:** 512x512 pixel images (automatically resized)
+            
+            **Processing:** Images are automatically normalized and resized for optimal model performance
+            """)
 
 
 elif page == "📋 Patient Feedback":
