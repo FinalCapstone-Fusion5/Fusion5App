@@ -275,8 +275,8 @@ elif page == "⏱️ Length of Stay":
     else:
         st.warning("Please upload a patient encounters CSV file to begin.")
 
-elif page == "🧠 CNN Model":
-    st.title("🧠 CNN Eye Image Classification")
+elif page == "🧠 Retinal Image Test":
+    st.title("🧠 Retinal Image Test")
     st.markdown("Upload a retinal image to classify diabetic retinopathy severity using our deep learning model.")
     
     # Model info
@@ -358,27 +358,6 @@ elif page == "🧠 CNN Model":
         st.markdown("**Expected Image Format:** JPG, JPEG, or PNG retinal/fundus photographs")
         st.markdown("**Model Input:** 512x512 pixel images (automatically resized)")
 
-elif page == "🧪 Retinal Image Test":
-    st.title("🧪 Retinal Image Test")
-    st.markdown("Upload a retinal image to test diabetic retinopathy classification.")
-    
-    # Image upload
-    uploaded_image = st.file_uploader("Upload Retinal Image", type=['jpg', 'jpeg', 'png'])
-    
-    if uploaded_image is not None:
-        st.image(uploaded_image, caption="Uploaded Image", use_column_width=True)
-        
-        if st.button("🔬 Test Image", use_container_width=True, type="primary"):
-            with st.spinner("Testing image..."):
-                try:
-                    # Add your CNN testing logic here
-                    st.success("✅ Image test complete!")
-                    st.info("Test functionality - integrate with CNN model when ready")
-                    
-                except Exception as e:
-                    st.error(f"Error during test: {e}")
-    else:
-        st.warning("Please upload a retinal image (JPG, JPEG, or PNG).")
 
 elif page == "📋 Patient Feedback":
     st.title("📋 Patient Feedback Data")
