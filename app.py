@@ -55,14 +55,6 @@ def execute_pipeline(input_df, drug_name):
     logging.info("Pipeline execution complete.")
     return prediction_result, log_file
 
-    # Step 3: Run readmission prediction
-    logging.info("Step 3: Predicting readmission...")
-    readmission_result = predict_readmission_pipeline.run_inference(processed_df, drug_name=drug_name)
-
-    # Step 4: Run length of stay prediction  
-    logging.info("Step 4: Predicting length of stay...")
-    lengthofstay_result = predict_lengthofstay_pipeline.run_inference(processed_df, drug_name=drug_name)
-
 # --- Streamlit Page Configuration & UI ---
 st.set_page_config(page_title="Medicine Feedback Analysis", page_icon="💊", layout="wide")
 
@@ -72,7 +64,8 @@ with st.sidebar:
     page = st.radio(
         "Choose Analysis Type:",
         ["🏠 Home", "😊 Sentiment Analysis", "🏥 Readmission Prediction", 
-         "⏱️ Length of Stay", "🧠 Retinal CNN Model", "🧪 Retinal Image Test", "Link to Patient Feedback", "Link to Medicine Feedback", "Link to CLinical Codes"]
+         "⏱️ Length of Stay", "🧠 CNN Model", "🧪 Retinal Image Test", 
+         "📋 Patient Feedback", "💊 Medicine Feedback", "🏥 Clinical Codes"]
     )
 
 # --- Main Content Based on Selection ---
@@ -124,8 +117,77 @@ if page == "🏠 Home":
     journey of discovery in AI and healthcare innovation. Your mentorship has been invaluable in bringing 
     this vision to life.
     """)
-    # Add overview content here
-#Readmissions    
+
+elif page == "😊 Sentiment Analysis":
+    st.title("😊 Sentiment Analysis")
+    st.markdown("Upload patient feedback CSV file and select a drug to analyze its sentiment and effectiveness.")
+    
+    # File upload
+    uploaded_file = st.file_uploader("Upload Patient Feedback CSV", type=['csv'])
+    
+    if 'drug_options' not in st.session_state:
+        st.session_state.drug_options = []
+
+    if uploaded_file is not None:
+        try:
+            df = pd.read_csv(uploaded_file)
+            if 'urlDrugName' in df.columns:
+                drug_names = sorted([name for name in df['urlDrugName'].unique() if pd.notna(name)])
+                st.session_state.drug_options = ["-- Select a Drug --"] + drug_names
+            else:
+                st.error("The uploaded CSV must contain a 'urlDrugName' column.")
+                st.session_state.drug_options = []
+        except Exception as e:
+            st.error(f"Error reading CSV file: {e}")
+            st.session_state.drug_options = []
+    
+    selected_drug = st.selectbox(
+        "Select Drug Name for Analysis",
+        options=st.session_state.drug_options,
+        index=0,
+        disabled=(not st.session_state.drug_options)
+    )
+
+    # Analysis execution
+    if uploaded_file and selected_drug != "-- Select a Drug --":
+        st.info(f"Ready to analyze **{selected_drug}** from `{uploaded_file.name}`.")
+        
+        if st.button(f"🚀 Run Analysis for {selected_drug}", use_container_width=True, type="primary"):
+            with st.spinner("Pipeline is running... This may take a moment."):
+                try:
+                    uploaded_file.seek(0)
+                    input_df = pd.read_csv(uploaded_file)
+                    
+                    results, log_file = execute_pipeline(input_df, selected_drug)
+                    st.success("✅ Pipeline executed successfully!")
+                    st.info(f"A detailed log has been saved to: `{log_file}`")
+                    
+                    # Display Results
+                    final_df = pd.DataFrame(results.get("data", []))
+                    specific_analysis = results.get("specific_drug_analysis", {})
+
+                    st.subheader(f"📊 Analysis Results for {selected_drug.title()}")
+                    if specific_analysis:
+                        col1, col2, col3 = st.columns(3)
+                        col1.metric("Overall Sentiment", specific_analysis.get("overall_sentiment", "N/A"))
+                        col2.metric("Average Rating", f"{specific_analysis.get('average_rating', 0):.2f}/10")
+                        col3.metric("Reviews Found", f"{specific_analysis.get('reviews_found', 0)}")
+                    
+                    with st.expander("🔬 View Detailed JSON Analysis"):
+                        summary_to_display = results.copy()
+                        summary_to_display.pop("data", None)
+                        st.json(summary_to_display)
+                    
+                    if not final_df.empty:
+                        st.subheader("Processed Data with Predictions")
+                        st.dataframe(final_df)
+
+                except Exception as e:
+                    st.error("An error occurred during pipeline execution:")
+                    st.exception(e)
+    else:
+        st.warning("Please upload a CSV file and select a drug from the dropdown to begin.")
+
 elif page == "🏥 Readmission Prediction":
     st.title("🏥 Readmission Prediction")
     st.markdown("Upload patient encounter data to predict readmission risk.")
@@ -153,7 +215,7 @@ elif page == "🏥 Readmission Prediction":
                     
                     st.success("✅ Readmission analysis complete!")
                     
-                    # Display results (add your prediction logic here)
+                    # Display results
                     st.subheader("📊 Readmission Analysis Results")
                     st.write(f"Processed {len(input_df)} patient records")
                     st.dataframe(processed_data.head())
@@ -163,7 +225,6 @@ elif page == "🏥 Readmission Prediction":
     else:
         st.warning("Please upload a patient encounters CSV file to begin.")
 
-#LOS
 elif page == "⏱️ Length of Stay":
     st.title("⏱️ Length of Stay Prediction")
     st.markdown("Upload patient encounter data to predict hospital length of stay.")
@@ -213,8 +274,6 @@ elif page == "⏱️ Length of Stay":
                     st.exception(e)
     else:
         st.warning("Please upload a patient encounters CSV file to begin.")
-
-#CNN
 
 elif page == "🧠 CNN Model":
     st.title("🧠 CNN Eye Image Classification")
@@ -298,71 +357,46 @@ elif page == "🧠 CNN Model":
         st.markdown("---")
         st.markdown("**Expected Image Format:** JPG, JPEG, or PNG retinal/fundus photographs")
         st.markdown("**Model Input:** 512x512 pixel images (automatically resized)")
-# --- UI Components ---
-with st.sidebar:
-    st.header("⚙️ Analysis Configuration")
-    uploaded_file = st.file_uploader("1. Upload Patient Feedback CSV", type=['csv'])
+
+elif page == "🧪 Retinal Image Test":
+    st.title("🧪 Retinal Image Test")
+    st.markdown("Upload a retinal image to test diabetic retinopathy classification.")
     
-    if 'drug_options' not in st.session_state:
-        st.session_state.drug_options = []
-
-    if uploaded_file is not None:
-        try:
-            df = pd.read_csv(uploaded_file)
-            if 'urlDrugName' in df.columns:
-                drug_names = sorted([name for name in df['urlDrugName'].unique() if pd.notna(name)])
-                st.session_state.drug_options = ["-- Select a Drug --"] + drug_names
-            else:
-                st.error("The uploaded CSV must contain a 'urlDrugName' column.")
-                st.session_state.drug_options = []
-        except Exception as e:
-            st.error(f"Error reading CSV file: {e}")
-            st.session_state.drug_options = []
+    # Image upload
+    uploaded_image = st.file_uploader("Upload Retinal Image", type=['jpg', 'jpeg', 'png'])
     
-    selected_drug = st.selectbox(
-        "2. Select Drug Name for Analysis",
-        options=st.session_state.drug_options,
-        index=0,
-        disabled=(not st.session_state.drug_options)
-    )
+    if uploaded_image is not None:
+        st.image(uploaded_image, caption="Uploaded Image", use_column_width=True)
+        
+        if st.button("🔬 Test Image", use_container_width=True, type="primary"):
+            with st.spinner("Testing image..."):
+                try:
+                    # Add your CNN testing logic here
+                    st.success("✅ Image test complete!")
+                    st.info("Test functionality - integrate with CNN model when ready")
+                    
+                except Exception as e:
+                    st.error(f"Error during test: {e}")
+    else:
+        st.warning("Please upload a retinal image (JPG, JPEG, or PNG).")
 
-# Main panel for results
-if uploaded_file and selected_drug != "-- Select a Drug --":
-    st.info(f"Ready to analyze **{selected_drug}** from `{uploaded_file.name}`.")
-    
-    if st.button(f"🚀 Run Analysis for {selected_drug}", use_container_width=True, type="primary"):
-        with st.spinner("Pipeline is running... This may take a moment."):
-            try:
-                uploaded_file.seek(0)
-                input_df = pd.read_csv(uploaded_file)
-                
-                results, log_file = execute_pipeline(input_df, selected_drug)
-                st.success("✅ Pipeline executed successfully!")
-                st.info(f"A detailed log has been saved to: `{log_file}`")
-                
-                # --- Display Results ---
-                final_df = pd.DataFrame(results.get("data", []))
-                specific_analysis = results.get("specific_drug_analysis", {})
+elif page == "📋 Patient Feedback":
+    st.title("📋 Patient Feedback Data")
+    st.markdown("Access and analyze patient feedback datasets.")
+    st.info("Link to patient feedback data sources and analysis tools.")
+    # Add patient feedback functionality here
 
-                st.subheader(f"📊 Analysis Results for {selected_drug.title()}")
-                if specific_analysis:
-                    col1, col2, col3 = st.columns(3)
-                    col1.metric("Overall Sentiment", specific_analysis.get("overall_sentiment", "N/A"))
-                    col2.metric("Average Rating", f"{specific_analysis.get('average_rating', 0):.2f}/10")
-                    col3.metric("Reviews Found", f"{specific_analysis.get('reviews_found', 0)}")
-                
-                with st.expander("🔬 View Detailed JSON Analysis"):
-                    summary_to_display = results.copy()
-                    summary_to_display.pop("data", None)
-                    st.json(summary_to_display)
-                
-                if not final_df.empty:
-                    st.subheader("Processed Data with Predictions")
-                    st.dataframe(final_df)
+elif page == "💊 Medicine Feedback":
+    st.title("💊 Medicine Feedback Data")
+    st.markdown("Access and analyze medicine feedback datasets.")
+    st.info("Link to medicine feedback data sources and analysis tools.")
+    # Add medicine feedback functionality here
 
-            except Exception as e:
-                st.error("An error occurred during pipeline execution:")
-                st.exception(e)
+elif page == "🏥 Clinical Codes":
+    st.title("🏥 Clinical Codes Data")
+    st.markdown("Access and analyze clinical codes datasets.")
+    st.info("Link to clinical codes data sources and reference materials.")
+    # Add clinical codes functionality here
+
 else:
-    st.warning("Please upload a CSV file and select a drug from the dropdown to begin.")
-
+    st.error("Page not found. Please select a valid option from the sidebar.")
