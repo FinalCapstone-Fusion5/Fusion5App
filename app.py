@@ -747,7 +747,7 @@ elif page == "🏥 Readmission Prediction":
                     predictor = ImprovedBatchReadmissionPredictor()
                     
                     #results, log_file = execute_readmission_pipeline(predictor, uploaded_file)
-                    results, log_filr = predictor.predict_batch(uploaded_file, output_file, 0.3)
+                    results = predictor.predict_batch(uploaded_file, output_file, 0.3)
                     st.success("✅ Readmission analysis complete!")
                     
                     # Display results
