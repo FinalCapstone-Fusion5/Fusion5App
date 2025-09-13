@@ -294,7 +294,7 @@ def execute_pipeline(input_df, drug_name):
 
 # ------ Readmission Prediction Pipeline Logic -----
 @st.cache_data
-def execute_readmission_pipeline(input_file):
+def execute_readmission_pipeline(model_pipeline, input_file):
     # Process the data
     #input_file = "../healthcare/patient_encounters_2023.csv"
     output_file = "processed_readmission_data.csv"
@@ -312,7 +312,7 @@ def execute_readmission_pipeline(input_file):
     
     # Step 2: Run sentiment prediction and analysis
     logging.info("Step 2: Predicting readmission...")
-    results = predict_readmission_pipeline.predict_batch(input_file, output_file, 0.3)
+    results = model_pipeline.predict_batch(input_file, output_file, 0.3)
     
     logging.info("Pipeline execution complete.")
     return results, log_file
@@ -739,8 +739,13 @@ elif page == "🏥 Readmission Prediction":
                     processed_data = pipeline.preprocess_data(input_df)
                     pipeline.fit_scaler(processed_data)
                     scaled_data = pipeline.transform_data(processed_data)"""
+
+                    model_path='models/readmission_model.joblib'
+                    pipeline_path='models/readmission_data_pipeline.pkl'
+                    from predict_readmission_pipeline import ReadmissionDataPipeline
+                    predictor = ImprovedBatchReadmissionPredictor(model_path, pipeline_path)
                     
-                    results, log_file = execute_readmission_pipeline(uploaded_file)
+                    results, log_file = execute_readmission_pipeline(predictor, uploaded_file)
                     st.success("✅ Readmission analysis complete!")
                     
                     # Display results
