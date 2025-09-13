@@ -120,73 +120,172 @@ if page == "🏠 Home":
 
 elif page == "😊 Sentiment Analysis":
     st.title("😊 Sentiment Analysis")
-    st.markdown("Upload patient feedback CSV file and select a drug to analyze its sentiment and effectiveness.")
+    st.markdown("Analyze patient feedback and medication reviews using our sentiment analysis model.")
     
-    # File upload
-    uploaded_file = st.file_uploader("Upload Patient Feedback CSV", type=['csv'])
-    
-    if 'drug_options' not in st.session_state:
-        st.session_state.drug_options = []
-
-    if uploaded_file is not None:
-        try:
-            df = pd.read_csv(uploaded_file)
-            if 'urlDrugName' in df.columns:
-                drug_names = sorted([name for name in df['urlDrugName'].unique() if pd.notna(name)])
-                st.session_state.drug_options = ["-- Select a Drug --"] + drug_names
-            else:
-                st.error("The uploaded CSV must contain a 'urlDrugName' column.")
-                st.session_state.drug_options = []
-        except Exception as e:
-            st.error(f"Error reading CSV file: {e}")
-            st.session_state.drug_options = []
-    
-    selected_drug = st.selectbox(
-        "Select Drug Name for Analysis",
-        options=st.session_state.drug_options,
-        index=0,
-        disabled=(not st.session_state.drug_options)
+    # Analysis method selection
+    analysis_method = st.radio(
+        "Choose Analysis Method:",
+        ["📄 Upload CSV File", "✏️ Enter Text Manually"],
+        horizontal=True
     )
-
-    # Analysis execution
-    if uploaded_file and selected_drug != "-- Select a Drug --":
-        st.info(f"Ready to analyze **{selected_drug}** from `{uploaded_file.name}`.")
+    
+    if analysis_method == "📄 Upload CSV File":
+        st.subheader("📄 CSV File Analysis")
+        st.markdown("Upload a CSV file containing patient feedback data with drug names.")
         
-        if st.button(f"🚀 Run Analysis for {selected_drug}", use_container_width=True, type="primary"):
-            with st.spinner("Pipeline is running... This may take a moment."):
-                try:
-                    uploaded_file.seek(0)
-                    input_df = pd.read_csv(uploaded_file)
-                    
-                    results, log_file = execute_pipeline(input_df, selected_drug)
-                    st.success("✅ Pipeline executed successfully!")
-                    st.info(f"A detailed log has been saved to: `{log_file}`")
-                    
-                    # Display Results
-                    final_df = pd.DataFrame(results.get("data", []))
-                    specific_analysis = results.get("specific_drug_analysis", {})
+        # File upload
+        uploaded_file = st.file_uploader("Upload Patient Feedback CSV", type=['csv'])
+        
+        if 'drug_options' not in st.session_state:
+            st.session_state.drug_options = []
 
-                    st.subheader(f"📊 Analysis Results for {selected_drug.title()}")
-                    if specific_analysis:
-                        col1, col2, col3 = st.columns(3)
-                        col1.metric("Overall Sentiment", specific_analysis.get("overall_sentiment", "N/A"))
-                        col2.metric("Average Rating", f"{specific_analysis.get('average_rating', 0):.2f}/10")
-                        col3.metric("Reviews Found", f"{specific_analysis.get('reviews_found', 0)}")
-                    
-                    with st.expander("🔬 View Detailed JSON Analysis"):
-                        summary_to_display = results.copy()
-                        summary_to_display.pop("data", None)
-                        st.json(summary_to_display)
-                    
-                    if not final_df.empty:
-                        st.subheader("Processed Data with Predictions")
-                        st.dataframe(final_df)
+        if uploaded_file is not None:
+            try:
+                df = pd.read_csv(uploaded_file)
+                if 'urlDrugName' in df.columns:
+                    drug_names = sorted([name for name in df['urlDrugName'].unique() if pd.notna(name)])
+                    st.session_state.drug_options = ["-- Select a Drug --"] + drug_names
+                else:
+                    st.error("The uploaded CSV must contain a 'urlDrugName' column.")
+                    st.session_state.drug_options = []
+            except Exception as e:
+                st.error(f"Error reading CSV file: {e}")
+                st.session_state.drug_options = []
+        
+        selected_drug = st.selectbox(
+            "Select Drug Name for Analysis",
+            options=st.session_state.drug_options,
+            index=0,
+            disabled=(not st.session_state.drug_options)
+        )
 
-                except Exception as e:
-                    st.error("An error occurred during pipeline execution:")
-                    st.exception(e)
-    else:
-        st.warning("Please upload a CSV file and select a drug from the dropdown to begin.")
+        # CSV Analysis execution
+        if uploaded_file and selected_drug != "-- Select a Drug --":
+            st.info(f"Ready to analyze **{selected_drug}** from `{uploaded_file.name}`.")
+            
+            if st.button(f"🚀 Run Analysis for {selected_drug}", use_container_width=True, type="primary"):
+                with st.spinner("Pipeline is running... This may take a moment."):
+                    try:
+                        uploaded_file.seek(0)
+                        input_df = pd.read_csv(uploaded_file)
+                        
+                        results, log_file = execute_pipeline(input_df, selected_drug)
+                        st.success("✅ Pipeline executed successfully!")
+                        st.info(f"A detailed log has been saved to: `{log_file}`")
+                        
+                        # Display Results
+                        final_df = pd.DataFrame(results.get("data", []))
+                        specific_analysis = results.get("specific_drug_analysis", {})
+
+                        st.subheader(f"📊 Analysis Results for {selected_drug.title()}")
+                        if specific_analysis:
+                            col1, col2, col3 = st.columns(3)
+                            col1.metric("Overall Sentiment", specific_analysis.get("overall_sentiment", "N/A"))
+                            col2.metric("Average Rating", f"{specific_analysis.get('average_rating', 0):.2f}/10")
+                            col3.metric("Reviews Found", f"{specific_analysis.get('reviews_found', 0)}")
+                        
+                        with st.expander("🔬 View Detailed JSON Analysis"):
+                            summary_to_display = results.copy()
+                            summary_to_display.pop("data", None)
+                            st.json(summary_to_display)
+                        
+                        if not final_df.empty:
+                            st.subheader("Processed Data with Predictions")
+                            st.dataframe(final_df)
+
+                    except Exception as e:
+                        st.error("An error occurred during pipeline execution:")
+                        st.exception(e)
+        else:
+            st.warning("Please upload a CSV file and select a drug from the dropdown to begin.")
+    
+    elif analysis_method == "✏️ Enter Text Manually":
+        st.subheader("✏️ Manual Text Analysis")
+        st.markdown("Enter patient feedback text and drug name for quick sentiment analysis.")
+        
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            # Text input area
+            user_text = st.text_area(
+                "Patient Feedback Text:",
+                placeholder="Enter patient feedback here... e.g., 'This medication helped with my condition but caused some side effects...'",
+                height=150
+            )
+        
+        with col2:
+            # Drug name input
+            drug_name = st.text_input(
+                "Drug Name:",
+                placeholder="e.g., Aspirin, Metformin"
+            )
+            
+            # Rating input (optional)
+            rating = st.slider(
+                "Rating (optional):",
+                min_value=1,
+                max_value=10,
+                value=5,
+                help="Patient rating from 1-10"
+            )
+        
+        # Manual analysis execution
+        if st.button("🔍 Analyze Text", use_container_width=True, type="primary"):
+            if user_text.strip() and drug_name.strip():
+                with st.spinner("Analyzing sentiment..."):
+                    try:
+                        # Create a simple DataFrame from the manual input
+                        manual_data = pd.DataFrame({
+                            'review': [user_text.strip()],
+                            'urlDrugName': [drug_name.strip()],
+                            'rating': [rating]
+                        })
+                        
+                        # Run the sentiment analysis pipeline
+                        results, log_file = execute_pipeline(manual_data, drug_name.strip())
+                        
+                        st.success("✅ Text analysis complete!")
+                        
+                        # Display Results
+                        st.subheader("📊 Analysis Results")
+                        
+                        specific_analysis = results.get("specific_drug_analysis", {})
+                        if specific_analysis:
+                            col1, col2, col3 = st.columns(3)
+                            col1.metric("Predicted Sentiment", specific_analysis.get("overall_sentiment", "N/A"))
+                            col2.metric("Input Rating", f"{rating}/10")
+                            col3.metric("Confidence", "High" if specific_analysis.get("reviews_found", 0) > 0 else "N/A")
+                        
+                        # Show the input text for reference
+                        with st.expander("📝 Input Text Analysis"):
+                            st.markdown(f"**Drug:** {drug_name}")
+                            st.markdown(f"**Text:** {user_text}")
+                            st.markdown(f"**Rating:** {rating}/10")
+                        
+                        # Show detailed results if available
+                        final_df = pd.DataFrame(results.get("data", []))
+                        if not final_df.empty:
+                            with st.expander("🔬 Detailed Analysis"):
+                                st.dataframe(final_df)
+                                
+                    except Exception as e:
+                        st.error("An error occurred during text analysis:")
+                        st.exception(e)
+            else:
+                st.warning("Please enter both patient feedback text and drug name.")
+        
+        # Sample text examples
+        with st.expander("💡 Sample Text Examples"):
+            st.markdown("""
+            **Positive Example:**
+            *"This medication has been life-changing for my diabetes. My blood sugar levels are much more stable now and I feel great!"*
+            
+            **Negative Example:**
+            *"The medication helped with my condition but the side effects were terrible. I experienced nausea and dizziness daily."*
+            
+            **Neutral Example:**
+            *"The medication works as expected. No major improvements or side effects to report."*
+            """)
 
 elif page == "🏥 Readmission Prediction":
     st.title("🏥 Readmission Prediction")
