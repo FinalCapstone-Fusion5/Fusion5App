@@ -15,6 +15,228 @@ from pipeline import predict_sentiment
 from pipeline import readmission_data_pipeline
 from pipeline import los_data_pipeline
 
+# Add this CSS styling function right after your imports in app.py
+
+def apply_healthcare_theme():
+    """Apply professional healthcare styling"""
+    st.markdown("""
+    <style>
+    /* Main app background */
+    .stApp {
+        background-color: #f8fafe;
+    }
+    
+    /* Sidebar styling */
+    .css-1d391kg {
+        background-color: #ffffff;
+        border-right: 2px solid #e1e8ed;
+    }
+    
+    /* Sidebar title */
+    .css-1d391kg h1 {
+        color: #1f4e79;
+        font-weight: 600;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #4a90c2;
+    }
+    
+    /* Radio buttons in sidebar */
+    .css-1d391kg .stRadio > label {
+        background-color: #f8fafe;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        margin: 0.2rem 0;
+        border: 1px solid #e1e8ed;
+        transition: all 0.3s ease;
+    }
+    
+    .css-1d391kg .stRadio > label:hover {
+        background-color: #e3f2fd;
+        border-color: #4a90c2;
+    }
+    
+    /* Selected radio button */
+    .css-1d391kg .stRadio > label[data-baseweb="radio"] {
+        background-color: #4a90c2;
+        color: white;
+        font-weight: 500;
+    }
+    
+    /* Main content area */
+    .block-container {
+        padding: 2rem 3rem;
+        background-color: #ffffff;
+        border-radius: 12px;
+        margin: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    /* Headers */
+    h1 {
+        color: #1f4e79;
+        font-weight: 600;
+        border-bottom: 3px solid #4a90c2;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    h2 {
+        color: #2c5aa0;
+        font-weight: 500;
+        margin-top: 2rem;
+    }
+    
+    h3 {
+        color: #345a8a;
+        font-weight: 500;
+    }
+    
+    /* Buttons */
+    .stButton > button {
+        background-color: #4a90c2;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 2rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .stButton > button:hover {
+        background-color: #3a7cb0;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    /* Success messages */
+    .stSuccess {
+        background-color: #e8f5e8;
+        border: 1px solid #4caf50;
+        border-radius: 8px;
+        color: #2e7d32;
+    }
+    
+    /* Warning messages */
+    .stWarning {
+        background-color: #fff3e0;
+        border: 1px solid #ff9800;
+        border-radius: 8px;
+        color: #f57c00;
+    }
+    
+    /* Error messages */
+    .stError {
+        background-color: #ffebee;
+        border: 1px solid #f44336;
+        border-radius: 8px;
+        color: #c62828;
+    }
+    
+    /* Info messages */
+    .stInfo {
+        background-color: #e3f2fd;
+        border: 1px solid #2196f3;
+        border-radius: 8px;
+        color: #1565c0;
+    }
+    
+    /* Metrics */
+    .css-1xarl3l {
+        background-color: #f8fafe;
+        border: 1px solid #e1e8ed;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+    
+    /* File uploader */
+    .stFileUploader {
+        background-color: #f8fafe;
+        border: 2px dashed #4a90c2;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    /* Expanders */
+    .streamlit-expanderHeader {
+        background-color: #f0f7ff;
+        border: 1px solid #4a90c2;
+        border-radius: 8px;
+        color: #1f4e79;
+        font-weight: 500;
+    }
+    
+    /* Dataframes */
+    .stDataFrame {
+        border: 1px solid #e1e8ed;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    /* Text areas */
+    .stTextArea textarea {
+        border: 2px solid #e1e8ed;
+        border-radius: 8px;
+        background-color: #ffffff;
+    }
+    
+    .stTextArea textarea:focus {
+        border-color: #4a90c2;
+        box-shadow: 0 0 0 2px rgba(74, 144, 194, 0.2);
+    }
+    
+    /* Text inputs */
+    .stTextInput input {
+        border: 2px solid #e1e8ed;
+        border-radius: 8px;
+        background-color: #ffffff;
+    }
+    
+    .stTextInput input:focus {
+        border-color: #4a90c2;
+        box-shadow: 0 0 0 2px rgba(74, 144, 194, 0.2);
+    }
+    
+    /* Selectbox */
+    .stSelectbox select {
+        border: 2px solid #e1e8ed;
+        border-radius: 8px;
+        background-color: #ffffff;
+    }
+    
+    /* Slider */
+    .stSlider .css-1cpxqw2 {
+        background-color: #4a90c2;
+    }
+    
+    /* Remove default Streamlit branding colors */
+    .css-10trblm {
+        color: #1f4e79;
+    }
+    
+    /* Spinner */
+    .stSpinner > div {
+        border-color: #4a90c2 transparent #4a90c2 transparent;
+    }
+    
+    /* Footer */
+    .css-164nlkn {
+        color: #666;
+        font-size: 0.8rem;
+    }
+    
+    /* Hide Streamlit menu and footer for cleaner look */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    </style>
+    """, unsafe_allow_html=True)
+
+# Add this call right after st.set_page_config in your app.py
+apply_healthcare_theme()
+
 # --- Logging Configuration ---
 def setup_logging():
     """Configures logging to write to a file in a 'logs' directory."""
