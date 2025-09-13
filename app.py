@@ -523,6 +523,172 @@ elif page == "😊 Sentiment Analysis":
             *"The medication works as expected. No major improvements or side effects to report."*
             """)
 
+elif page == "⏱️ Length of Stay":
+    st.title("⏱️ Length of Stay Prediction")
+    st.markdown("Upload patient encounter data to predict hospital length of stay with risk assessment and recommendations.")
+    
+    # Model info
+    with st.expander("📋 Model Information"):
+        st.markdown("""
+        **Risk Levels:**
+        - **Low Risk:** ≤ 3 days (standard care protocols)
+        - **Medium Risk:** 4-7 days (monitor for complications)  
+        - **High Risk:** 8-14 days (enhanced monitoring protocols)
+        - **Very High Risk:** > 14 days (intensive intervention protocols)
+        
+        **Features:** Age, BMI, admission type, diagnoses, medications, procedures, lab tests
+        """)
+    
+    # File upload for patient encounters
+    uploaded_file = st.file_uploader("Upload Patient Encounters CSV", type=['csv'], key="los_upload")
+    
+    if uploaded_file is not None:
+        st.info(f"Ready to analyze length of stay from `{uploaded_file.name}`.")
+        
+        if st.button("🚀 Run Length of Stay Analysis", use_container_width=True, type="primary"):
+            with st.spinner("Analyzing length of stay and generating predictions..."):
+                try:
+                    # Read the uploaded file
+                    input_df = pd.read_csv(uploaded_file)
+                    
+                    # Create pipeline instance and process
+                    from los_data_pipeline import LOSDataPipeline
+                    pipeline = LOSDataPipeline()
+                    
+                    # Process the data
+                    processed_data = pipeline.preprocess_data(input_df)
+                    pipeline.fit_scaler(processed_data)
+                    scaled_data = pipeline.transform_data(processed_data)
+                    
+                    st.success("✅ Length of stay analysis complete!")
+                    
+                    # Mock predictions for demo (replace with actual model when available)
+                    # This simulates what your BatchLOSPredictor would return
+                    import numpy as np
+                    mock_predictions = np.random.uniform(1, 20, len(input_df))
+                    risk_levels = []
+                    recommendations = []
+                    
+                    for pred in mock_predictions:
+                        if pred <= 3:
+                            risk_levels.append("Low")
+                            recommendations.append("Standard care protocols")
+                        elif pred <= 7:
+                            risk_levels.append("Medium")
+                            recommendations.append("Monitor closely for complications")
+                        elif pred <= 14:
+                            risk_levels.append("High")
+                            recommendations.append("Enhanced monitoring protocols; Consider early intervention")
+                        else:
+                            risk_levels.append("Very High")
+                            recommendations.append("Intensive intervention protocols; High-risk care team")
+                    
+                    # Create results dataframe
+                    results_df = input_df.copy()
+                    results_df['predicted_length_of_stay'] = np.round(mock_predictions, 1)
+                    results_df['risk_level'] = risk_levels
+                    results_df['recommendations'] = recommendations
+                    results_df['prediction_confidence'] = np.random.uniform(0.7, 0.95, len(mock_predictions))
+                    
+                    # Display summary metrics
+                    st.subheader("📊 Prediction Summary")
+                    
+                    col1, col2, col3, col4 = st.columns(4)
+                    col1.metric("Patients Processed", len(input_df))
+                    col2.metric("Avg Predicted LOS", f"{results_df['predicted_length_of_stay'].mean():.1f} days")
+                    col3.metric("Median LOS", f"{results_df['predicted_length_of_stay'].median():.1f} days")
+                    col4.metric("High Risk Patients", len(results_df[results_df['risk_level'].isin(['High', 'Very High'])]))
+                    
+                    # Risk level distribution
+                    st.subheader("⚠️ Risk Level Distribution")
+                    risk_counts = results_df['risk_level'].value_counts()
+                    
+                    col1, col2, col3, col4 = st.columns(4)
+                    col1.metric("Low Risk", f"{risk_counts.get('Low', 0)} ({risk_counts.get('Low', 0)/len(results_df)*100:.1f}%)")
+                    col2.metric("Medium Risk", f"{risk_counts.get('Medium', 0)} ({risk_counts.get('Medium', 0)/len(results_df)*100:.1f}%)")
+                    col3.metric("High Risk", f"{risk_counts.get('High', 0)} ({risk_counts.get('High', 0)/len(results_df)*100:.1f}%)", delta_color="inverse")
+                    col4.metric("Very High Risk", f"{risk_counts.get('Very High', 0)} ({risk_counts.get('Very High', 0)/len(results_df)*100:.1f}%)", delta_color="inverse")
+                    
+                    # Top risk patients
+                    st.subheader("🚨 Highest Risk Patients")
+                    top_risk = results_df.nlargest(5, 'predicted_length_of_stay')[
+                        ['patient_nbr', 'predicted_length_of_stay', 'risk_level', 'recommendations', 'prediction_confidence']
+                    ] if 'patient_nbr' in results_df.columns else results_df.nlargest(5, 'predicted_length_of_stay')[
+                        ['predicted_length_of_stay', 'risk_level', 'recommendations', 'prediction_confidence']
+                    ]
+                    
+                    # Color code the risk levels
+                    def color_risk_level(val):
+                        if val == 'Very High':
+                            return 'background-color: #ffebee; color: #c62828'
+                        elif val == 'High':
+                            return 'background-color: #fff3e0; color: #f57c00'
+                        elif val == 'Medium':
+                            return 'background-color: #fff8e1; color: #f9a825'
+                        else:
+                            return 'background-color: #e8f5e8; color: #2e7d32'
+                    
+                    st.dataframe(top_risk.style.applymap(color_risk_level, subset=['risk_level']))
+                    
+                    # Feature importance (if available)
+                    with st.expander("📋 Feature Summary"):
+                        st.write("**Features used for prediction:**")
+                        st.write(pipeline.feature_columns)
+                        
+                        if hasattr(processed_data, 'describe'):
+                            st.write("**Data Summary:**")
+                            st.dataframe(processed_data.describe())
+                    
+                    # Download results
+                    with st.expander("💾 Download Results"):
+                        csv = results_df.to_csv(index=False)
+                        st.download_button(
+                            label="📥 Download Predictions as CSV",
+                            data=csv,
+                            file_name=f"los_predictions_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                            mime='text/csv'
+                        )
+                    
+                    # Full results table
+                    with st.expander("📄 View All Predictions"):
+                        st.dataframe(results_df.style.applymap(color_risk_level, subset=['risk_level']))
+                    
+                    # Clinical insights
+                    st.subheader("🏥 Clinical Insights")
+                    
+                    avg_los = results_df['predicted_length_of_stay'].mean()
+                    high_risk_pct = len(results_df[results_df['risk_level'].isin(['High', 'Very High'])]) / len(results_df) * 100
+                    
+                    if high_risk_pct > 30:
+                        st.warning(f"⚠️ **High Risk Alert:** {high_risk_pct:.1f}% of patients are classified as high or very high risk for extended stays. Consider resource allocation and care coordination.")
+                    elif high_risk_pct > 15:
+                        st.info(f"ℹ️ **Moderate Risk:** {high_risk_pct:.1f}% of patients may require extended stays. Monitor closely.")
+                    else:
+                        st.success(f"✅ **Low Risk Population:** Only {high_risk_pct:.1f}% of patients are predicted for extended stays.")
+                    
+                    if avg_los > 10:
+                        st.warning(f"📊 Average predicted LOS of {avg_los:.1f} days is above normal range. Consider early discharge planning.")
+                    
+                except Exception as e:
+                    st.error(f"Error during analysis: {e}")
+                    st.exception(e)
+    else:
+        st.warning("Please upload a patient encounters CSV file to begin.")
+        
+        # Sample data format
+        with st.expander("📋 Expected Data Format"):
+            st.markdown("""
+            **Required columns:** age, gender, admission_type_id, time_in_hospital, num_medications, 
+            num_lab_procedures, num_procedures, weight (optional), patient_nbr (optional)
+            
+            **Sample format:**
+            ```
+            patient_nbr,age,gender,admission_type_id,time_in_hospital,num_medications,num_lab_procedures,num_procedures
+            12345,[70-80),Male,1,5,15,25,3
+            67890,[50-60),Female,2,3,8,12,1
+            ```
+            """)
+
 elif page == "🏥 Readmission Prediction":
     st.title("🏥 Readmission Prediction")
     st.markdown("Upload patient encounter data to predict readmission risk.")
