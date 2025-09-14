@@ -307,7 +307,7 @@ def execute_readmission_pipeline(input_file):
     results = pipeline.predict_batch(uploaded_file, None, 0.5)
 
     # Create result subset for visualization
-    results_subset = results[['encounter_id', 'patient_nbr', 'readmitted', 'predicted_readmission', 'readmission_probability', 'risk_level', 'recommendations', 'prediction_confidence']
+    results_subset = results['encounter_id', 'patient_nbr', 'readmitted', 'predicted_readmission', 'readmission_probability', 'risk_level', 'recommendations', 'prediction_confidence']
     logging.info("Pipeline execution complete.")
     return results, log_file
 
