@@ -304,7 +304,7 @@ def execute_readmission_pipeline(input_file):
     # Step 1: Process the raw data and provide predictions
     logging.info("Step 1: Preprocessing data...")
     pipeline = ImprovedBatchReadmissionPredictor()
-    results = predictor.predict_batch(uploaded_file, None, 0.5)
+    results = pipeline.predict_batch(uploaded_file, None, 0.5)
 
     # Create result subset for visualization
     results_subset = results[['encounter_id'], ['patient_nbr'], ['readmitted'], ['predicted_readmission'], ['readmission_probability'], ['risk_level'], ['recommendations'], ['prediction_confidence']]
