@@ -321,7 +321,7 @@ with st.sidebar:
     page = st.radio(
         "Choose Analysis Type:",
         ["🏠 Home", "😊 Sentiment Analysis", "🏥 Readmission Prediction", 
-         "⏱️ Length of Stay", "🧪 Retinal Image Test", 
+         "⏱️ Length of Stay", "🧪 Retinal Image Test", "🗂️ Retinopathy Bulk Testing",
          "📋 Patient Feedback", "💊 Medicine Feedback", "🏥 Clinical Codes"]
     )
 
@@ -884,6 +884,19 @@ elif page == "🧪 Retinal Image Test":
             **Processing:** Images are automatically normalized and resized for optimal model performance
             """)
 
+elif page == "🗂️ Retinopathy Bulk Testing":
+    st.title("🗂️ Retinopathy Bulk Testing")
+    st.markdown("Run **bulk predictions** (multiple images/CSV) in a separate Streamlit app.")
+
+    _bulk_url = st.secrets.get("bulk_app_url") or os.getenv("BULK_APP_URL")
+    if _bulk_url:
+        try:
+            st.page_link(_bulk_url, label="Open Retinopathy Bulk Testing app", icon="🗂️")
+        except Exception:
+            st.link_button("Open Retinopathy Bulk Testing app", _bulk_url, type="primary")
+    else:
+        st.warning("No bulk app URL configured. Please set `bulk_app_url` in `.streamlit/secrets.toml` "
+                   "or `BULK_APP_URL` as an environment variable.")
 
 elif page == "📋 Patient Feedback":
     st.title("📋 Patient Feedback Data")
