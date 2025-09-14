@@ -13,8 +13,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from pipeline import process_feedback
 from pipeline import predict_sentiment
 from pipeline import readmission_data_pipeline
-#from pipeline import predict_readmission_pipeline
 from pipeline import los_data_pipeline
+from predict_readmission_pipeline import ImprovedBatchReadmissionPredictor
 
 # ASTHETICS: Background Color and Such
 
@@ -294,26 +294,20 @@ def execute_pipeline(input_df, drug_name):
 
 # ------ Readmission Prediction Pipeline Logic -----
 @st.cache_data
-def execute_readmission_pipeline(_model_pipeline, input_file):
-    # Process the data
-    #input_file = "../healthcare/patient_encounters_2023.csv"
-    output_file = "processed_readmission_data.csv"
-    pipeline_file = "readmission_data_pipeline.pkl"
-    
+def execute_readmission_pipeline(input_file):
     """
-    Orchestrates the data processing and sentiment analysis pipeline.
+    Orchestrates the data processing and risk analysis pipeline.
     """
     log_file = setup_logging()
-    logging.info(f"Pipeline run initiated for readmission prediction")#drug: '{drug_name}'. Log file: {log_file}")
+    logging.info(f"Pipeline run initiated for readmission prediction"). Log file: {log_file}")
 
-    """# Step 1: Process the raw data
+    # Step 1: Process the raw data and provide predictions
     logging.info("Step 1: Preprocessing data...")
-    scaled_data, processed_data = readmission_data_pipeline.process_file(input_file, output_file, pipeline_file)"""
-    
-    # Step 2: Run sentiment prediction and analysis
-    logging.info("Step 2: Predicting readmission...")
-    results = model_pipeline.predict_batch(input_file, output_file, 0.3)
-    
+    pipeline = ImprovedBatchReadmissionPredictor()
+    results = predictor.predict_batch(uploaded_file, None, 0.5)
+
+    # Create result subset for visualization
+    results_subset = results[['encounter_id'], ['patient_nbr'], ['readmitted'], ['predicted_readmission'], ['readmission_probability'], ['risk_level'], ['recommendations'], ['prediction_confidence']]
     logging.info("Pipeline execution complete.")
     return results, log_file
 
@@ -728,20 +722,13 @@ elif page == "🏥 Readmission Prediction":
         if st.button("🚀 Run Readmission Analysis", use_container_width=True, type="primary"):
             with st.spinner("Analyzing readmission risk..."):
                 try:
-                    model_path='models/readmission_model.joblib'
-                    pipeline_path='models/readmission_data_pipeline.pkl'
-                    output_file = "readmission_prediction_data.csv"
-                    from predict_readmission_pipeline import ImprovedBatchReadmissionPredictor
-                    predictor = ImprovedBatchReadmissionPredictor()
-                    
-                    #results, log_file = execute_readmission_pipeline(predictor, uploaded_file)
-                    results = predictor.predict_batch(uploaded_file, None, 0.3)
+                    results, log_file = execute_readmission_pipeline(uploaded_file)
                     st.success("✅ Readmission analysis complete!")
                     
                     # Display results
                     st.subheader("📊 Readmission Analysis Results")
-                    #st.write(f"Processed {len(input_df)} patient records")
-                    st.write(f"Readmission Resultset -")
+                    st.write(f"Processed {len(results)} patient records")
+                    st.write(f"Readmission Predictions")
                     st.dataframe(results.head())
                     
                 except Exception as e:
