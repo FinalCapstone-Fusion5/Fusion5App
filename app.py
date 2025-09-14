@@ -302,14 +302,15 @@ def execute_readmission_pipeline(input_file):
     logging.info(f"Pipeline run initiated for readmission prediction. Log file: {log_file}")
 
     # Step 1: Process the raw data and provide predictions
-    logging.info("Step 1: Preprocessing data...")
+    logging.info("Step 1: Preprocessing data and computing predictions...")
     pipeline = ImprovedBatchReadmissionPredictor()
     results = pipeline.predict_batch(uploaded_file, None, 0.5)
 
     # Create result subset for visualization
-    #results_subset = results['encounter_id', 'patient_nbr', 'readmitted', 'predicted_readmission', 'readmission_probability', 'risk_level', 'recommendations', 'prediction_confidence']
+    results_subset = results[['encounter_id', 'patient_nbr', 'readmitted', 'predicted_readmission', 'readmission_probability', 'risk_level', 'recommendations', 'prediction_confidence']]
+
     logging.info("Pipeline execution complete.")
-    return results, log_file
+    return results_subset, log_file
 
 # --- Streamlit Page Configuration & UI ---
 st.set_page_config(page_title="Medicine Feedback Analysis", page_icon="💊", layout="wide")
