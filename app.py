@@ -299,7 +299,7 @@ def execute_readmission_pipeline(input_file):
     Orchestrates the data processing and risk analysis pipeline.
     """
     log_file = setup_logging()
-    logging.info(f"Pipeline run initiated for readmission prediction"). Log file: {log_file}")
+    logging.info(f"Pipeline run initiated for readmission prediction. Log file: {log_file}")
 
     # Step 1: Process the raw data and provide predictions
     logging.info("Step 1: Preprocessing data...")
