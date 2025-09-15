@@ -1071,12 +1071,280 @@ elif page == "💊 Medicine Feedback":
     st.markdown("Access and analyze medicine feedback datasets.")
     st.info("Link to medicine feedback data sources and analysis tools.")
     # Add medicine feedback functionality here
-
+#---------------------------------------------Codes--------------------------------------------------------------------------------------------------------------------------------------------------------
 elif page == "🏥 Clinical Codes":
-    st.title("🏥 Clinical Codes Data")
-    st.markdown("Access and analyze clinical codes datasets.")
-    st.info("Link to clinical codes data sources and reference materials.")
-    # Add clinical codes functionality here
+    st.title("🏥 Clinical Codes Reference")
+    st.markdown("Medical coding reference for healthcare data analysis and interpretation.")
+    
+    # Create tabs for different code types
+    tab1, tab2, tab3 = st.tabs(["🚑 Admission Types", "🏠 Discharge Dispositions", "📍 Admission Sources"])
+    
+    with tab1:
+        st.subheader("Admission Type Codes")
+        st.markdown("Classification of patient admission types and urgency levels.")
+        
+        admission_data = {
+            "Code": [1, 2, 3, 4, 5, 6, 7, 8],
+            "Description": [
+                "Emergency",
+                "Urgent", 
+                "Elective",
+                "Newborn",
+                "Not Available",
+                "NULL",
+                "Trauma Center",
+                "Not Mapped"
+            ],
+            "Category": [
+                "Urgent Care",
+                "Urgent Care",
+                "Scheduled",
+                "Birth",
+                "Unknown",
+                "Unknown", 
+                "Critical Care",
+                "Unknown"
+            ]
+        }
+        
+        admission_df = pd.DataFrame(admission_data)
+        
+        # Color code by category
+        def color_admission_type(val):
+            if val == "Urgent Care":
+                return 'background-color: #ffebee; color: #c62828'
+            elif val == "Critical Care":
+                return 'background-color: #e3f2fd; color: #1565c0'
+            elif val == "Scheduled":
+                return 'background-color: #e8f5e8; color: #2e7d32'
+            elif val == "Birth":
+                return 'background-color: #fff3e0; color: #f57c00'
+            else:
+                return 'background-color: #f5f5f5; color: #666'
+        
+        st.dataframe(
+            admission_df.style.applymap(color_admission_type, subset=['Category']),
+            use_container_width=True,
+            hide_index=True
+        )
+        
+        # Summary stats
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Total Codes", len(admission_df))
+        col2.metric("Urgent/Critical", len(admission_df[admission_df['Category'].isin(['Urgent Care', 'Critical Care'])]))
+        col3.metric("Scheduled", len(admission_df[admission_df['Category'] == 'Scheduled']))
+    
+    with tab2:
+        st.subheader("Discharge Disposition Codes")
+        st.markdown("Patient discharge destinations and care transitions.")
+        
+        discharge_data = {
+            "Code": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+            "Description": [
+                "Discharged to home",
+                "Discharged/transferred to another short term hospital", 
+                "Discharged/transferred to SNF",
+                "Discharged/transferred to ICF",
+                "Discharged/transferred to another type of inpatient care institution",
+                "Discharged/transferred to home with home health service",
+                "Left AMA",
+                "Discharged/transferred to home under care of Home IV provider",
+                "Admitted as an inpatient to this hospital",
+                "Neonate discharged to another hospital for neonatal aftercare",
+                "Expired",
+                "Still patient or expected to return for outpatient services",
+                "Hospice / home",
+                "Hospice / medical facility",
+                "Discharged/transferred within this institution to Medicare approved swing bed",
+                "Discharged/transferred/referred another institution for outpatient services",
+                "Discharged/transferred/referred to this institution for outpatient services",
+                "NULL",
+                "Expired at home. Medicaid only, hospice",
+                "Expired in a medical facility. Medicaid only, hospice",
+                "Expired, place unknown. Medicaid only, hospice",
+                "Discharged/transferred to another rehab fac including rehab units of a hospital",
+                "Discharged/transferred to a long term care hospital",
+                "Discharged/transferred to a nursing facility certified under Medicaid but not certified under Medicare",
+                "Not Mapped",
+                "Unknown/Invalid",
+                "Discharged/transferred to a federal health care facility",
+                "Discharged/transferred/referred to a psychiatric hospital of psychiatric distinct part unit of a hospital",
+                "Discharged/transferred to a Critical Access Hospital (CAH)",
+                "Discharged/transferred to another Type of Health Care Institution not Defined Elsewhere"
+            ],
+            "Category": [
+                "Home", "Transfer", "Long-term Care", "Long-term Care", "Transfer", 
+                "Home Care", "AMA", "Home Care", "Readmission", "Transfer",
+                "Expired", "Outpatient", "Hospice", "Hospice", "Transfer",
+                "Outpatient", "Outpatient", "Unknown", "Expired", "Expired", 
+                "Expired", "Rehabilitation", "Long-term Care", "Long-term Care", "Unknown",
+                "Unknown", "Transfer", "Psychiatric", "Transfer", "Transfer"
+            ]
+        }
+        
+        discharge_df = pd.DataFrame(discharge_data)
+        
+        # Color code by category
+        def color_discharge_type(val):
+            if val == "Home":
+                return 'background-color: #e8f5e8; color: #2e7d32'
+            elif val == "Home Care":
+                return 'background-color: #f1f8e9; color: #388e3c'
+            elif val == "Transfer":
+                return 'background-color: #e3f2fd; color: #1565c0'
+            elif val == "Long-term Care":
+                return 'background-color: #fff3e0; color: #f57c00'
+            elif val == "Expired":
+                return 'background-color: #ffebee; color: #c62828'
+            elif val == "Hospice":
+                return 'background-color: #fce4ec; color: #ad1457'
+            elif val == "AMA":
+                return 'background-color: #fff8e1; color: #f9a825'
+            else:
+                return 'background-color: #f5f5f5; color: #666'
+        
+        # Add search functionality
+        search_term = st.text_input("Search discharge codes:", placeholder="Enter search term...")
+        
+        if search_term:
+            filtered_df = discharge_df[discharge_df['Description'].str.contains(search_term, case=False, na=False)]
+        else:
+            filtered_df = discharge_df
+        
+        st.dataframe(
+            filtered_df.style.applymap(color_discharge_type, subset=['Category']),
+            use_container_width=True,
+            hide_index=True
+        )
+        
+        # Category breakdown
+        st.subheader("Discharge Category Summary")
+        category_counts = discharge_df['Category'].value_counts()
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            for i, (category, count) in enumerate(category_counts.head(4).items()):
+                st.metric(category, count)
+        with col2:
+            for i, (category, count) in enumerate(category_counts.tail(len(category_counts)-4).items()):
+                st.metric(category, count)
+    
+    with tab3:
+        st.subheader("Admission Source Codes") 
+        st.markdown("Origin points and referral sources for patient admissions.")
+        
+        admission_source_data = {
+            "Code": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26],
+            "Description": [
+                "Physician Referral",
+                "Clinic Referral",
+                "HMO Referral", 
+                "Transfer from a hospital",
+                "Transfer from a Skilled Nursing Facility (SNF)",
+                "Transfer from another health care facility",
+                "Emergency Room",
+                "Court/Law Enforcement",
+                "Not Available",
+                "Transfer from critical access hospital",
+                "Normal Delivery",
+                "Premature Delivery",
+                "Sick Baby",
+                "Extramural Birth",
+                "Not Available",
+                "NULL",
+                "Transfer From Another Home Health Agency",
+                "Readmission to Same Home Health Agency",
+                "Not Mapped",
+                "Unknown/Invalid",
+                "Transfer from hospital inpt/same fac reslt in a sep claim",
+                "Born inside this hospital", 
+                "Born outside this hospital",
+                "Transfer from Ambulatory Surgery Center",
+                "Transfer from Hospice"
+            ],
+            "Category": [
+                "Referral", "Referral", "Referral", "Transfer", "Transfer",
+                "Transfer", "Emergency", "Legal", "Unknown", "Transfer",
+                "Birth", "Birth", "Birth", "Birth", "Unknown",
+                "Unknown", "Transfer", "Readmission", "Unknown", "Unknown",
+                "Transfer", "Birth", "Birth", "Transfer", "Transfer"
+            ]
+        }
+        
+        source_df = pd.DataFrame(admission_source_data)
+        
+        # Color code by category
+        def color_source_type(val):
+            if val == "Referral":
+                return 'background-color: #e8f5e8; color: #2e7d32'
+            elif val == "Transfer":
+                return 'background-color: #e3f2fd; color: #1565c0'
+            elif val == "Emergency":
+                return 'background-color: #ffebee; color: #c62828'
+            elif val == "Birth":
+                return 'background-color: #fff3e0; color: #f57c00'
+            elif val == "Legal":
+                return 'background-color: #f3e5f5; color: #7b1fa2'
+            elif val == "Readmission":
+                return 'background-color: #fff8e1; color: #f9a825'
+            else:
+                return 'background-color: #f5f5f5; color: #666'
+        
+        # Filter by category
+        categories = ['All'] + sorted(source_df['Category'].unique().tolist())
+        selected_category = st.selectbox("Filter by category:", categories)
+        
+        if selected_category != 'All':
+            filtered_source_df = source_df[source_df['Category'] == selected_category]
+        else:
+            filtered_source_df = source_df
+        
+        st.dataframe(
+            filtered_source_df.style.applymap(color_source_type, subset=['Category']),
+            use_container_width=True,
+            hide_index=True
+        )
+        
+        # Source category breakdown
+        st.subheader("Admission Source Summary")
+        source_counts = source_df['Category'].value_counts()
+        
+        cols = st.columns(len(source_counts))
+        for i, (category, count) in enumerate(source_counts.items()):
+            cols[i].metric(category, count)
+    
+    # Download options
+    st.markdown("---")
+    st.subheader("📥 Download Reference Data")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        admission_csv = pd.DataFrame(admission_data).to_csv(index=False)
+        st.download_button(
+            "Download Admission Types",
+            admission_csv,
+            "admission_types.csv",
+            "text/csv"
+        )
+    
+    with col2:
+        discharge_csv = pd.DataFrame(discharge_data).to_csv(index=False)
+        st.download_button(
+            "Download Discharge Codes", 
+            discharge_csv,
+            "discharge_codes.csv",
+            "text/csv"
+        )
+    
+    with col3:
+        source_csv = pd.DataFrame(admission_source_data).to_csv(index=False)
+        st.download_button(
+            "Download Admission Sources",
+            source_csv, 
+            "admission_sources.csv",
+            "text/csv"
+        )
 
 else:
     st.error("Page not found. Please select a valid option from the sidebar.")
