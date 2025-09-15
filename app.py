@@ -1005,16 +1005,29 @@ elif page == "🧪 Retinal Image Test":
                             result = tester.predict_single_image(temp_path)
                             
                         else:
-                            # Enhanced model
-                            from enhanced_retinal_cnn import EnhancedRetinalCNNv2
-                            enhanced_cnn = EnhancedRetinalCNNv2()
-                            
-                            # Load model (adjust path as needed)
-                            import tensorflow as tf
-                            enhanced_cnn.model = tf.keras.models.load_model("enhanced_modelv4_final.h5")
-                            
-                            # Make prediction using enhanced model
-                            result = enhanced_cnn.predict_single_image(temp_path)
+                            # Enhanced model - with error handling
+                            try:
+                                from enhanced_retinal_cnn import EnhancedRetinalCNNv2
+                                enhanced_cnn = EnhancedRetinalCNNv2()
+                                
+                                # Load model (adjust path as needed)
+                                import tensorflow as tf
+                                enhanced_cnn.model = tf.keras.models.load_model("enhanced_modelv4_final.h5")
+                                
+                                # Make prediction using enhanced model
+                                result = enhanced_cnn.predict_single_image(temp_path)
+                                
+                            except ImportError:
+                                st.error("Enhanced model not available. Using Basic model instead.")
+                                from cnn_model_test import RetinalCNNTester
+                                tester = RetinalCNNTester(model_path="basic_modelv4_final.h5")
+                                result = tester.predict_single_image(temp_path)
+                                
+                            except Exception as e:
+                                st.error(f"Enhanced model failed: {e}. Using Basic model instead.")
+                                from cnn_model_test import RetinalCNNTester
+                                tester = RetinalCNNTester(model_path="basic_modelv4_final.h5")
+                                result = tester.predict_single_image(temp_path)
                         
                         # Clean up temp file
                         os.unlink(temp_path)
