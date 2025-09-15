@@ -367,7 +367,7 @@ with st.sidebar:
         "Choose Analysis Type:",
         ["🏠 Home", "😊 Sentiment Analysis", "🏥 Readmission Prediction", 
          "⏱️ Length of Stay", "🧪 Retinal Image Test", "🗂️ Retinopathy Bulk Testing",
-         "📋 Patient Feedback", "💊 Medicine Feedback", "🏥 Clinical Codes"]
+         "🏥 Clinical Codes", "Fusion5 Contact"]
     )
 
 # --- Main Content Based on Selection ---
@@ -948,7 +948,7 @@ elif page == "⏱️ Length of Stay":
                     st.exception(e)
     else:
         st.warning("Please upload a patient encounters CSV file to begin.")
-
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 elif page == "🧪 Retinal Image Test":
     st.title("🧪 Retinal Image Test")
     st.markdown("Upload a retinal image to classify diabetic retinopathy severity using our deep learning model.")
@@ -1045,7 +1045,7 @@ elif page == "🧪 Retinal Image Test":
             
             **Processing:** Images are automatically normalized and resized for optimal model performance
             """)
-
+#-------------------------------------------------Bulk Tes---------------------------------------------------------------------------------------------------------------------------------------------
 elif page == "🗂️ Retinopathy Bulk Testing":
     st.title("🗂️ Retinopathy Bulk Testing")
     st.markdown("Run **bulk predictions** (multiple images/CSV) in a separate Streamlit app.")
@@ -1060,17 +1060,7 @@ elif page == "🗂️ Retinopathy Bulk Testing":
         st.warning("No bulk app URL configured. Please set `bulk_app_url` in `.streamlit/secrets.toml` "
                    "or `BULK_APP_URL` as an environment variable.")
 
-elif page == "📋 Patient Feedback":
-    st.title("📋 Patient Feedback Data")
-    st.markdown("Access and analyze patient feedback datasets.")
-    st.info("Link to patient feedback data sources and analysis tools.")
-    # Add patient feedback functionality here
 
-elif page == "💊 Medicine Feedback":
-    st.title("💊 Medicine Feedback Data")
-    st.markdown("Access and analyze medicine feedback datasets.")
-    st.info("Link to medicine feedback data sources and analysis tools.")
-    # Add medicine feedback functionality here
 #---------------------------------------------Codes--------------------------------------------------------------------------------------------------------------------------------------------------------
 elif page == "🏥 Clinical Codes":
     st.title("🏥 Clinical Codes Reference")
