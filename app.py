@@ -18,6 +18,8 @@ from predict_readmission_pipeline import ImprovedBatchReadmissionPredictor
 
 # ASTHETICS: Background Color and Such
 
+# Add this CSS styling function right after your imports in app.py
+
 def apply_healthcare_theme():
     """Apply professional healthcare styling"""
     st.markdown("""
@@ -204,7 +206,6 @@ def apply_healthcare_theme():
         border: 2px solid #e1e8ed;
         border-radius: 8px;
         background-color: #ffffff;
-        color: #8a8a8a !important;
     }
     
     .stTextInput input:focus {
@@ -224,9 +225,41 @@ def apply_healthcare_theme():
         background-color: #4a90c2;
     }
     
-    /* Remove default Streamlit branding colors */
-    .css-10trblm {
-        color: #1f4e79;
+    /* JSON display */
+    .stJson {
+        background-color: #ffffff !important;
+        border: 1px solid #e1e8ed !important;
+        border-radius: 8px !important;
+        color: #1f4e79 !important;
+    }
+    
+    /* JSON content */
+    .stJson pre {
+        background-color: #f8fafe !important;
+        color: #1f4e79 !important;
+        border: none !important;
+    }
+    
+    /* JSON syntax highlighting */
+    .stJson .token.string {
+        color: #2e7d32 !important;
+    }
+    
+    .stJson .token.number {
+        color: #1976d2 !important;
+    }
+    
+    .stJson .token.boolean {
+        color: #7b1fa2 !important;
+    }
+    
+    .stJson .token.null {
+        color: #f57c00 !important;
+    }
+    
+    .stJson .token.property {
+        color: #1f4e79 !important;
+        font-weight: 500;
     }
     
     /* Spinner */
@@ -247,6 +280,9 @@ def apply_healthcare_theme():
     
     </style>
     """, unsafe_allow_html=True)
+
+# Add this call right after st.set_page_config in your app.py
+apply_healthcare_theme()
 
 
 # Add this call right after st.set_page_config in your app.py
