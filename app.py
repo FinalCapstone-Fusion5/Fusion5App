@@ -1335,8 +1335,8 @@ elif page == "🏥 Clinical Codes":
             "admission_sources.csv",
             "text/csv"
         )
-#---------------------------------Contact---------------------------------------------------------------
-elif page == "📞 Contact":
+#---------------------------------Contact----------------------------------------------------------------------------------------------------------------------------------------------------
+elif page == "📞 Fusion5 Contact":
     st.title("📞 Contact Fusion 5 Team")
     st.markdown("Get in touch with our healthcare AI specialists for support, partnerships, or technical inquiries.")
     
