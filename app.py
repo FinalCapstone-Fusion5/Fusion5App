@@ -367,7 +367,7 @@ with st.sidebar:
         "Choose Analysis Type:",
         ["🏠 Home", "😊 Sentiment Analysis", "🏥 Readmission Prediction", 
          "⏱️ Length of Stay", "🧪 Retinal Image Test", "🗂️ Retinopathy Bulk Testing",
-         "🏥 Clinical Codes", "Fusion5 Contact"]
+         "🏥 Clinical Codes", "📞 Fusion5 Contact"]
     )
 
 # --- Main Content Based on Selection ---
@@ -1335,6 +1335,216 @@ elif page == "🏥 Clinical Codes":
             "admission_sources.csv",
             "text/csv"
         )
+#---------------------------------Contact---------------------------------------------------------------
+elif page == "📞 Contact":
+    st.title("📞 Contact Fusion 5 Team")
+    st.markdown("Get in touch with our healthcare AI specialists for support, partnerships, or technical inquiries.")
+    
+    # Team contact cards
+    st.subheader("👥 Team Members")
+    
+    team_members = [
+        {"name": "Siri", "role": "Machine Learning Specialist", "email": "siri@fusion5.com", "focus": "Model Development & AI Research"},
+        {"name": "Srividya", "role": "Deployment Engineer", "email": "srividya@fusion5.com", "focus": "System Integration & Cloud Infrastructure"},
+        {"name": "Greggy", "role": "Data Scientist", "email": "greggy@fusion5.com", "focus": "Data Pipeline & Analytics"},
+        {"name": "Chris", "role": "Business Development", "email": "chris@fusion5.com", "focus": "Healthcare Partnerships & Strategy"},
+        {"name": "Sean", "role": "Web Developer", "email": "sean@fusion5.com", "focus": "Frontend Development & User Experience"}
+    ]
+    
+    # Display team members in a grid
+    cols = st.columns(2)
+    for i, member in enumerate(team_members):
+        with cols[i % 2]:
+            with st.container():
+                st.markdown(f"""
+                <div style="
+                    border: 2px solid #4a90c2; 
+                    border-radius: 12px; 
+                    padding: 1.5rem; 
+                    margin: 1rem 0;
+                    background-color: #f8fafe;
+                    text-align: center;
+                ">
+                    <h4 style="color: #1f4e79; margin-bottom: 0.5rem;">{member['name']}</h4>
+                    <p style="color: #2c5aa0; font-weight: 500; margin-bottom: 0.5rem;">{member['role']}</p>
+                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">{member['focus']}</p>
+                    <a href="mailto:{member['email']}?subject=Healthcare AI Inquiry" 
+                       style="
+                           background-color: #4a90c2; 
+                           color: white; 
+                           padding: 0.5rem 1rem; 
+                           border-radius: 6px; 
+                           text-decoration: none; 
+                           font-weight: 500;
+                           display: inline-block;
+                       ">
+                        📧 Contact {member['name']}
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # Quick contact form
+    st.subheader("✉️ Send Us a Message")
+    st.markdown("Choose a team member and compose your message. This will open your email client with pre-filled information.")
+    
+    col1, col2 = st.columns([1, 2])
+    
+    with col1:
+        # Contact selection
+        contact_options = [f"{member['name']} - {member['role']}" for member in team_members]
+        selected_contact = st.selectbox("Who would you like to contact?", contact_options)
+        
+        # Get selected member email
+        selected_index = contact_options.index(selected_contact)
+        selected_email = team_members[selected_index]['email']
+        selected_name = team_members[selected_index]['name']
+        
+        # Message type
+        message_types = [
+            "General Inquiry",
+            "Technical Support", 
+            "Partnership Opportunity",
+            "Model Performance Question",
+            "Data Integration Help",
+            "Custom Development Request"
+        ]
+        
+        message_type = st.selectbox("Type of inquiry:", message_types)
+    
+    with col2:
+        # User information
+        user_name = st.text_input("Your Name:")
+        user_organization = st.text_input("Organization (optional):")
+        
+        # Message content
+        user_message = st.text_area(
+            "Your Message:",
+            placeholder="Please describe your inquiry or how we can help you...",
+            height=120
+        )
+    
+    # Generate email
+    if st.button("📧 Open Email Client", use_container_width=True, type="primary"):
+        if user_name and user_message:
+            # Create email content
+            subject = f"Healthcare AI Inquiry - {message_type}"
+            
+            body = f"""Hello {selected_name},
 
+My name is {user_name}{f' from {user_organization}' if user_organization else ''}.
+
+Type of Inquiry: {message_type}
+
+Message:
+{user_message}
+
+Best regards,
+{user_name}
+
+---
+Sent via Fusion 5 Healthcare AI Platform
+"""
+            
+            # URL encode the email content
+            import urllib.parse
+            encoded_subject = urllib.parse.quote(subject)
+            encoded_body = urllib.parse.quote(body)
+            
+            # Create mailto link
+            mailto_link = f"mailto:{selected_email}?subject={encoded_subject}&body={encoded_body}"
+            
+            # Display the link
+            st.markdown(f"""
+            <div style="text-align: center; margin: 2rem 0;">
+                <a href="{mailto_link}" 
+                   style="
+                       background-color: #4a90c2; 
+                       color: white; 
+                       padding: 1rem 2rem; 
+                       border-radius: 8px; 
+                       text-decoration: none; 
+                       font-weight: 500;
+                       font-size: 1.1rem;
+                       display: inline-block;
+                   ">
+                    📧 Send Email to {selected_name}
+                </a>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.success(f"Email prepared for {selected_name}! Click the button above to open your email client.")
+            
+        else:
+            st.warning("Please fill in your name and message before generating the email.")
+    
+    # Alternative contact methods
+    st.markdown("---")
+    st.subheader("🌐 Alternative Contact Methods")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        **📧 General Email**  
+        [info@fusion5.com](mailto:info@fusion5.com)
+        
+        For general inquiries and information
+        """)
+    
+    with col2:
+        st.markdown("""
+        **🆘 Technical Support**  
+        [support@fusion5.com](mailto:support@fusion5.com)
+        
+        For technical issues and troubleshooting
+        """)
+    
+    with col3:
+        st.markdown("""
+        **🤝 Partnerships**  
+        [partnerships@fusion5.com](mailto:partnerships@fusion5.com)
+        
+        For business development and collaborations
+        """)
+    
+    # FAQ section
+    st.markdown("---")
+    st.subheader("❓ Frequently Asked Questions")
+    
+    with st.expander("How quickly can I expect a response?"):
+        st.markdown("""
+        - **Technical Support**: Within 24 hours during business days
+        - **General Inquiries**: Within 48 hours
+        - **Partnership Opportunities**: Within 1 week
+        - **Urgent Medical Issues**: Please contact your healthcare provider directly
+        """)
+    
+    with st.expander("What information should I include in my inquiry?"):
+        st.markdown("""
+        For the best support experience, please include:
+        - Your name and organization
+        - Specific details about your use case or issue
+        - Any error messages or screenshots (if applicable)
+        - Your preferred method and timeline for follow-up
+        """)
+    
+    with st.expander("Can you integrate with our existing healthcare systems?"):
+        st.markdown("""
+        Yes! Our team specializes in healthcare system integration. Contact **Srividya** (Deployment Engineer) 
+        or **Chris** (Business Development) to discuss:
+        - EHR system integration
+        - FHIR compliance
+        - Custom API development
+        - Cloud deployment options
+        """)
+    
+    # Disclaimer
+    st.markdown("---")
+    st.info("🏥 **Medical Disclaimer**: This platform is for research and educational purposes. For medical emergencies or urgent patient care decisions, please contact qualified healthcare professionals immediately.")
+
+
+    
 else:
     st.error("Page not found. Please select a valid option from the sidebar.")
