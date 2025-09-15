@@ -20,6 +20,8 @@ from predict_readmission_pipeline import ImprovedBatchReadmissionPredictor
 
 # Add this CSS styling function right after your imports in app.py
 
+# Add this CSS styling function right after your imports in app.py
+
 def apply_healthcare_theme():
     """Apply professional healthcare styling"""
     st.markdown("""
@@ -225,22 +227,32 @@ def apply_healthcare_theme():
         background-color: #4a90c2;
     }
     
-    /* JSON display */
-    .stJson {
+    /* JSON display - more aggressive targeting */
+    .stJson, .stJson div, .stJson pre, .stJson code {
         background-color: #ffffff !important;
+        color: #1f4e79 !important;
+    }
+    
+    /* Target all JSON-related elements */
+    [data-testid="stJson"], [data-testid="stJson"] * {
+        background-color: #ffffff !important;
+        color: #1f4e79 !important;
+    }
+    
+    /* Override any dark theme JSON styles */
+    .css-1629p8f, .css-1629p8f pre, .css-1629p8f code {
+        background-color: #ffffff !important;
+        color: #1f4e79 !important;
+    }
+    
+    /* JSON container */
+    .element-container .stJson {
+        background: #ffffff !important;
         border: 1px solid #e1e8ed !important;
         border-radius: 8px !important;
-        color: #1f4e79 !important;
     }
     
-    /* JSON content */
-    .stJson pre {
-        background-color: #f8fafe !important;
-        color: #1f4e79 !important;
-        border: none !important;
-    }
-    
-    /* JSON syntax highlighting */
+    /* JSON syntax highlighting override */
     .stJson .token.string {
         color: #2e7d32 !important;
     }
@@ -284,9 +296,6 @@ def apply_healthcare_theme():
 # Add this call right after st.set_page_config in your app.py
 apply_healthcare_theme()
 
-
-# Add this call right after st.set_page_config in your app.py
-apply_healthcare_theme()
 
 # --- Logging Configuration ---
 def setup_logging():
