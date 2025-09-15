@@ -9,3 +9,14 @@ torch
 opencv-python-headless
 tensorflow
 matplotlib
+streamlit
+tensorflow
+opencv-python-headless
+numpy
+pandas
+matplotlib
+seaborn
+albumentations
+scikit-learn
+PyYAML
+pathlib
