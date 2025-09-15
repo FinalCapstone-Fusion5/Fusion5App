@@ -1546,5 +1546,5 @@ Sent via Fusion 5 Healthcare AI Platform
 
 
     
-else:
-    st.error("Page not found. Please select a valid option from the sidebar.")
+#else:
+  #  st.error("Page not found. Please select a valid option from the sidebar.")
