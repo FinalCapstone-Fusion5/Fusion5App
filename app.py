@@ -15,6 +15,8 @@ from pipeline import predict_sentiment
 from pipeline import readmission_data_pipeline
 from pipeline import los_data_pipeline
 from predict_readmission_pipeline import ImprovedBatchReadmissionPredictor
+from cnn_model_test import RetinalCNNTester
+from enhanced_retinal_cnn import EnhancedRetinalCNNv2
 
 # ASTHETICS: Background Color and Such
 
@@ -948,10 +950,18 @@ elif page == "⏱️ Length of Stay":
                     st.exception(e)
     else:
         st.warning("Please upload a patient encounters CSV file to begin.")
-#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------Retinal Image Test-----------------------------------------------------------------------------------------
 elif page == "🧪 Retinal Image Test":
     st.title("🧪 Retinal Image Test")
     st.markdown("Upload a retinal image to classify diabetic retinopathy severity using our deep learning model.")
+    
+    # Model selection
+    model_choice = st.radio(
+        "🤖 Choose Model:",
+        ["Basic CNN Model", "Enhanced CNN Model"],
+        horizontal=True,
+        help="Basic: Faster inference, Enhanced: More advanced architecture"
+    )
     
     # Model info
     with st.expander("📋 Model Overview"):
@@ -977,7 +987,7 @@ elif page == "🧪 Retinal Image Test":
         
         with col2:
             if st.button("🔍 Classify Image", use_container_width=True, type="primary"):
-                with st.spinner("Analyzing retinal image..."):
+                with st.spinner(f"Analyzing retinal image with {model_choice}..."):
                     try:
                         # Save uploaded file temporarily
                         import tempfile
@@ -987,18 +997,33 @@ elif page == "🧪 Retinal Image Test":
                             tmp_file.write(uploaded_image.getvalue())
                             temp_path = tmp_file.name
                         
-                        # Initialize CNN tester
-                        from cnn_model_test import RetinalCNNTester
-                        tester = RetinalCNNTester(model_path="basic_modelv4_final.h5")
-                        
-                        # Make prediction
-                        result = tester.predict_single_image(temp_path)
+                        # Choose model based on selection
+                        if model_choice == "Basic CNN Model":
+                            # Basic model
+                            from cnn_model_test import RetinalCNNTester
+                            tester = RetinalCNNTester(model_path="basic_modelv4_final.h5")
+                            result = tester.predict_single_image(temp_path)
+                            
+                        else:
+                            # Enhanced model
+                            from enhanced_retinal_cnn import EnhancedRetinalCNNv2
+                            enhanced_cnn = EnhancedRetinalCNNv2()
+                            
+                            # Load model (adjust path as needed)
+                            import tensorflow as tf
+                            enhanced_cnn.model = tf.keras.models.load_model("enhanced_modelv4_final.h5")
+                            
+                            # Make prediction using enhanced model
+                            result = enhanced_cnn.predict_single_image(temp_path)
                         
                         # Clean up temp file
                         os.unlink(temp_path)
                         
                         if result:
                             st.success("✅ Image classification complete!")
+                            
+                            # Show which model was used
+                            st.info(f"🤖 **Model Used:** {model_choice}")
                             
                             # Display results
                             st.subheader("📊 Classification Results")
@@ -1031,7 +1056,7 @@ elif page == "🧪 Retinal Image Test":
                             st.error("Failed to process image. Please try a different image.")
                             
                     except Exception as e:
-                        st.error(f"Error during classification: {e}")
+                        st.error(f"Error during classification with {model_choice}: {e}")
                         st.exception(e)
     else:
         st.warning("Please upload a retinal image to begin classification.")
@@ -1044,6 +1069,10 @@ elif page == "🧪 Retinal Image Test":
             **Model Input:** 512x512 pixel images (automatically resized)
             
             **Processing:** Images are automatically normalized and resized for optimal model performance
+            
+            **Basic Model:** Lightweight CNN for fast inference
+            
+            **Enhanced Model:** Advanced architecture with attention mechanisms and progressive training
             """)
 #-------------------------------------------------Bulk Tes---------------------------------------------------------------------------------------------------------------------------------------------
 elif page == "🗂️ Retinopathy Bulk Testing":
