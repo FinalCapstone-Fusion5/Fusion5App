@@ -364,7 +364,7 @@ st.set_page_config(page_title="Medicine Feedback Analysis", page_icon="💊", la
 
 # --- Sidebar Navigation ---
 with st.sidebar:
-    st.title("🏥 ML Models")
+    st.title("🏥 AI\ML Models")
     page = st.radio(
         "Choose Analysis Type:",
         ["🏠 Home", "😊 Sentiment Analysis", "🏥 Readmission Prediction", 
